@@ -292,23 +292,28 @@ h1.t { font-size: clamp(56px, 10vw, 160px); font-weight: 600; letter-spacing: -0
   /* Telefon: alt bit menüsü */
   .nav { display: none; }
   .byte { display: inline; margin: 0 0 0 auto; }
-  .tabbar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); position: fixed; z-index: 40; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); height: 64px; padding: 0 4px; border-radius: 24px; box-sizing: border-box; }
-  .tabbar a { display: grid; justify-items: center; align-content: center; gap: 4px; margin: 8px 2px; border-radius: 16px; text-decoration: none; font-size: 12px; font-weight: 500; color: var(--ink-2); transition: background-color 0.2s ease, color 0.2s ease; -webkit-tap-highlight-color: transparent; }
+  .tabbar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); position: fixed; z-index: 40; left: 16px; right: 16px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); height: 56px; padding: 0 4px; border-radius: 24px; box-sizing: border-box; }
+  .tabbar a { display: grid; justify-items: center; align-content: center; gap: 2px; margin: 6px 2px; border-radius: 16px; text-decoration: none; font-size: 12px; font-weight: 500; color: var(--ink-2); transition: background-color 0.2s ease, color 0.2s ease; -webkit-tap-highlight-color: transparent; }
   .tabbar .tb { font: 400 11px/1 var(--mono); color: var(--ink-3); transition: transform 0.5s var(--spring); }
   .tabbar .tb::before { content: "0"; }
   .tabbar a[aria-current="page"] { color: var(--ink); background: var(--select); }
   .tabbar a[aria-current="page"] .tb { color: var(--ink); transform: scale(1.3); }
   .tabbar a[aria-current="page"] .tb::before { content: "1"; }
-  .foot { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); }
+  .foot { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
   .foot-in nav { display: none; }
 
   /* Telefon: ana sayfa tam ekran sahneler */
   html.snap { scroll-snap-type: y mandatory; }
   html.snap .foot { scroll-snap-align: end; }
   #v-ana > section { box-sizing: border-box; min-height: 100svh; height: auto; display: flex; flex-direction: column; justify-content: flex-end; row-gap: 24px;
-    padding-top: calc(64px + env(safe-area-inset-top, 0px) + 32svh); padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
-    scroll-snap-align: start; scroll-snap-stop: always;
-    background: linear-gradient(180deg, transparent 0, transparent 40%, rgba(2, 4, 10, 0.6) 56%, rgba(2, 4, 10, 0.86) 100%); }
+    padding-top: calc(64px + env(safe-area-inset-top, 0px) + 96px); padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    scroll-snap-align: start; scroll-snap-stop: always; }
+  /* Yazının hemen arkasında koyu bir perde: bit alanı ne kadar parlak olursa olsun metin okunur */
+  .hero-main, .mf-in, #v-ana > .sec > .wrap { position: relative; }
+  .hero-main::before, #v-ana > .sec > .wrap::before { content: ""; position: absolute; z-index: -1; pointer-events: none;
+    left: calc(-1 * var(--gut)); right: calc(-1 * var(--gut)); top: -72px; bottom: calc(-96px - env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(180deg, rgba(2, 4, 10, 0) 0, rgba(2, 4, 10, 0.88) 72px, rgba(2, 4, 10, 0.94) 100%); }
+  .hero-main::before { top: -128px; }
   #v-ana > section > .wrap { width: 100%; }
   .hero > div[aria-hidden] { display: none; }
   .clock { display: flex; align-items: center; gap: 16px; }
@@ -316,6 +321,7 @@ h1.t { font-size: clamp(56px, 10vw, 160px); font-weight: 600; letter-spacing: -0
   #v-ana > .mf { justify-content: center; padding-top: calc(64px + env(safe-area-inset-top, 0px)); padding-bottom: 44svh; background: none; }
   .mf-in { position: static; height: auto; padding-bottom: 0; gap: 24px; }
   .mf p.big { font-size: 40px; }
+  #v-ana > .mf { padding-bottom: 40svh; }
   #v-ana .sec-head { margin-bottom: 24px; }
 
   /* Telefon: yana kaydırılan kartlar */
@@ -334,10 +340,27 @@ h1.t { font-size: clamp(56px, 10vw, 160px); font-weight: 600; letter-spacing: -0
   #home-rows .row:hover .n, #home-rows .row:hover .s { transform: none; }
   #home-rows .tape { display: block; align-self: end; justify-self: start; width: fit-content; }
   #home-rows .tape svg { height: 40px; width: auto; max-width: 100%; }
-  .caps .cap h3 { font-size: 20px; }
+  .caps .cap { grid-template-columns: minmax(0, 1fr); gap: 8px; align-content: start; }
+  .caps .cap .bit { display: none; }
+  .caps .cap p { grid-column: 1; }
+  .caps .cap .tools { margin-top: 8px; }
+  .caps .cap h3 { font-size: 22px; }
+  #home-rows > .row, .caps > .cap { padding: 20px; }
   .pips { display: flex; gap: 8px; margin-top: 16px; font: 400 11px/1 var(--mono); color: var(--ink-4); }
   .pips span { transition: color 0.2s ease, transform 0.5s var(--spring); }
   .pips span.on { color: var(--ink); transform: scale(1.3); }
+}
+@media (max-width: 759px) and (max-height: 760px) {
+  .hero .clock { display: none; }
+  .hero h1 { font-size: clamp(48px, 15vw, 64px); }
+  .hero-name { gap: 16px; }
+  .hero-main { row-gap: 24px; }
+  .hero-side { gap: 16px; }
+  .hero-side p { font-size: 15px; }
+  .btn { height: 44px; padding: 0 20px; font-size: 15px; }
+  #v-ana > section { padding-top: calc(64px + env(safe-area-inset-top, 0px) + 72px); }
+  .mf p.big { font-size: 34px; }
+  .cta h2 { font-size: 40px; }
 }
 @keyframes readv { from { top: -8px; } to { top: 100%; } }
 @media (prefers-reduced-motion: reduce) {
@@ -419,17 +442,17 @@ h1.t { font-size: clamp(56px, 10vw, 160px); font-weight: 600; letter-spacing: -0
         <div class="left">
           <div class="sec-head"><h2 class="h" data-dcio>Ne yapıyorum</h2></div>
           <div class="caps">
-            <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>Arka uç</h3>
-              <p>Veri modelinden kullanıcı girişine, bir web uygulamasının sunucu tarafını kurarım.</p>
+            <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>Backend</h3>
+              <p>Veri modelinden login sistemine kadar bir web uygulamasının backend'ini kurarım.</p>
               <p class="tools">Python · Django · C# · SQL</p></div>
-            <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>Oyun geliştirme</h3>
+            <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>Game development</h3>
               <p>Kuralları olan, oyuncuyu karar vermeye zorlayan oyunlar tasarlar ve kodlarım.</p>
               <p class="tools">Unity · C#</p></div>
-            <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>Web arayüzü</h3>
-              <p>Tasarımı tarayıcıda çalışan, her ekrana uyan sayfalara çeviririm.</p>
+            <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>Frontend</h3>
+              <p>Tasarımları her ekrana uyan responsive sayfalara çeviririm.</p>
               <p class="tools">HTML · CSS · JavaScript</p></div>
-            <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>Video ve hareketli grafik</h3>
-              <p>Kurgu ve hareketli grafikle bir projeyi anlatılır hâle getiririm.</p>
+            <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>Video ve motion graphics</h3>
+              <p>Kurgu ve motion graphics ile bir projeyi anlatılır hâle getiririm.</p>
               <p class="tools">Adobe Premiere Pro · After Effects</p></div>
           </div>
         </div>
@@ -485,7 +508,7 @@ h1.t { font-size: clamp(56px, 10vw, 160px); font-weight: 600; letter-spacing: -0
           <h2>Deneyim</h2>
           <div class="tl">
             <div class="tl-item rv"><h3>Kodmosfer Yazılım · Stajyer Geliştirici</h3><span class="when">Ağu – Eyl 2024</span>
-              <p>SQL veritabanlarıyla yoğun çalıştım, C# ile arka uç bilgimi derinleştirdim, HTML ve CSS becerilerimi geliştirdim.</p></div>
+              <p>SQL veritabanlarıyla yoğun çalıştım, C# ile backend bilgimi derinleştirdim, HTML ve CSS becerilerimi geliştirdim.</p></div>
             <div class="tl-item rv"><h3>BEBESCO · Satış Temsilcisi</h3><span class="when">2021 – 2024</span>
               <p>Yaklaşık üç yıl profesyonel müşterilerle çalıştım; sunum becerilerimi ve satış sürecini bu işte öğrendim.</p></div>
           </div>
@@ -591,29 +614,29 @@ h1.t { font-size: clamp(56px, 10vw, 160px); font-weight: 600; letter-spacing: -0
   const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
   const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  const CATS = ['Oyun', 'Arka uç', 'Web'];
+  const CATS = ['Oyun', 'Backend', 'Web'];
   const PROJECTS = [
     { slug: 'safe-city-2072', idx: '001', name: 'Safe City: 2072', year: 2026, cats: ['Oyun'],
       stack: 'Unity · C#', role: '4 kişilik ekipte sistem mimarisi ve kodlama', dur: '48 saat · game jam',
-      sum: 'Nisan 2026\'da bir game jam\'de 48 saatte geliştirdiğimiz, piksel sanat tarzında kontrol noktası denetim oyunu.',
+      sum: 'Nisan 2026\'da bir game jam\'de 48 saatte geliştirdiğimiz, pixel art tarzında kontrol noktası denetim oyunu.',
       problem: '48 saat içinde, oyuncunun her kararının bir sonucu olduğu ve kuralları dikkatle uygulamayı gerektiren oynanabilir bir oyun çıkarmamız gerekiyordu.',
       did: ['Ekipte sistem mimarisini ve kodlamayı üstlendim; kimlik kartı ve sağlık belgesini kural kitabıyla karşılaştıran denetim döngüsünü Unity ve C# ile kurdum.', 'Geçerli yıl, izinli ve karantinalı bölgeler, onaylı kurumlar ve vücut sıcaklığından oluşan kural setini oyuna bağladım.', 'Her ziyaretçi için üç karar sundum: içeri al (Clear), tara (Scan) ya da enfekte olarak işaretle (Resurgent).'],
       result: 'Dört kişilik ekiple 48 saatte oynanabilir bir oyun teslim ettik; oyuncu her ziyaretçide belgeleri kurallarla karşılaştırıp karar veriyor.',
       flow: ['Kimlik kartı', 'Sağlık belgesi', 'Kural kitabı', 'Karar'] },
-    { slug: 'ozaydin-dev', idx: '010', name: 'ozaydin.dev', year: 2026, cats: ['Arka uç', 'Web'],
+    { slug: 'ozaydin-dev', idx: '010', name: 'ozaydin.dev', year: 2026, cats: ['Backend', 'Web'],
       stack: 'Django · Three.js · PostgreSQL · Nginx', role: 'Tasarım ve geliştirme', dur: 'Devam ediyor',
       sum: 'Şu an baktığın site. Django ile yazılıyor, kendi sunucumda yayına alınacak.',
       problem: 'CV gibi durmayan, ne yaptığımı anlatmak yerine gösteren bir site istedim.',
-      did: ['Siteyi Python ve Django ile kuruyorum; projeler yönetim panelinden eklenecek.', 'Binlerce 0 ve 1\'den oluşan 3B alanı ve sayfa geçişlerini Three.js ile hazırladım.', 'Ubuntu sunucuda Nginx, Gunicorn, PostgreSQL ve HTTPS ile yayına alacağım.'],
-      result: 'Sayfa önce metin olarak açılır; 3B alan arkadan yüklenir, zayıf cihazlarda kendini hafifletir.',
+      did: ['Siteyi Python ve Django ile kuruyorum; projeler admin panelinden eklenecek.', 'Binlerce 0 ve 1\'den oluşan 3D alanı ve sayfa geçişlerini Three.js ile hazırladım.', 'Ubuntu sunucuda Nginx, Gunicorn, PostgreSQL ve HTTPS ile yayına alacağım.'],
+      result: 'Sayfa önce metin olarak açılır; 3D alan arkadan yüklenir, zayıf cihazlarda kendini hafifletir.',
       flow: ['Tarayıcı', 'Nginx', 'Gunicorn · Django', 'PostgreSQL'] },
-    { slug: 'e-ticaret', idx: '011', name: 'E-Ticaret Sitesi', year: 2022, cats: ['Arka uç', 'Web'],
+    { slug: 'e-ticaret', idx: '011', name: 'E-Ticaret Sitesi', year: 2022, cats: ['Backend', 'Web'],
       stack: 'Python · Django · SQLite · HTML · CSS', role: 'Tek başıma', dur: null,
-      sum: 'Kullanıcı girişi, kategorili ürün kataloğu ve arama içeren Django ile yazılmış çevrim içi mağaza.',
+      sum: 'Kullanıcı girişi, kategorili ürün kataloğu ve arama içeren, Django ile yazılmış bir e-ticaret sitesi.',
       problem: 'Bir web uygulamasının kullanıcı yönetiminden veritabanına kadar nasıl çalıştığını kendi elimle kurarak öğrenmek istedim.',
-      did: ['Kayıt, giriş ve çıkışı Django\'nun kimlik doğrulama sistemiyle kurdum; şifre eşleşmesi, kullanılmış e-posta ve özel karakter kontrolleri ekledim.', 'Ürünleri kategorilere ayırdım; ürün görsellerini Django yönetim panelinden yüklenebilir yaptım.', 'Ürün adına veya kategoriye göre arama ekledim.'],
+      did: ['Kayıt, giriş ve çıkışı Django\'nun authentication sistemiyle kurdum; şifre eşleşmesi, kullanılmış e-posta ve özel karakter kontrolleri ekledim.', 'Ürünleri kategorilere ayırdım; ürün görsellerini Django admin panelinden yüklenebilir yaptım.', 'Ürün adına veya kategoriye göre arama ekledim.'],
       result: 'Kullanıcılar hesap açıp giriş yapabiliyor, ürünleri kategoriye göre görüp arayabiliyor.',
-      flow: ['Tarayıcı', 'Django görünümleri', 'Django ORM', 'SQLite'], repo: 'https://github.com/noxadsecula/Ecommerce-Django' }
+      flow: ['Tarayıcı', 'Django views', 'Django ORM', 'SQLite'], repo: 'https://github.com/noxadsecula/Ecommerce-Django' }
   ];
   const bySlug = Object.fromEntries(PROJECTS.map((p) => [p.slug, p]));
 
@@ -789,7 +812,8 @@ h1.t { font-size: clamp(56px, 10vw, 160px); font-weight: 600; letter-spacing: -0
       const visW = VIS_H * cam.aspect;
       if (n === 'floor' || n === 'wave') return { x: 0, y: n === 'wave' ? -5 : -5.6, s: 1, dim: n === 'wave' ? 0.9 : 0.45, wave: n === 'wave' ? 1 : 0.3, spin: 0 };
       const w = widths[n] || 8, hero = n === '01';
-      if (tall) return { x: 0, y: VIS_H * (hero ? 0.26 : 0.22), s: Math.min(0.55, visW * 0.84 / w), dim: hero ? 1 : 0.9, wave: 0, spin: n === 'helix' ? 1 : 0 };
+      const short = innerHeight < 760, k = short ? 0.6 : 1;
+      if (tall) return { x: 0, y: VIS_H * (short ? 0.25 : hero ? 0.26 : 0.22), s: Math.min(0.55, visW * 0.84 / w) * k, dim: hero ? 1 : 0.9, wave: 0, spin: n === 'helix' ? 1 : 0 };
       const frac = n === 'sphere' ? 0.34 : n === 'helix' ? 0.42 : 0.48;
       return { x: visW * 0.22, y: hero ? 0.9 : 0.2, s: Math.min(hero ? 1.1 : 1, visW * frac / w), dim: hero ? 1 : 0.85, wave: 0, spin: n === 'helix' ? 1 : 0 };
     }
@@ -964,11 +988,16 @@ h1.t { font-size: clamp(56px, 10vw, 160px); font-weight: 600; letter-spacing: -0
   let connected = false;
   const formName = (f) => (f === 'c' ? (connected ? '1' : '0') : f);
   let scene = null, homeCard = PROJECTS[0].idx;
-  const formIO = new IntersectionObserver((es) => es.forEach((e) => {
-    if (!e.isIntersecting) return;
-    scene = e.target;
-    field.base(mob.matches && scene.id === 'sec-projeler' ? 'd-' + homeCard : formName(scene.dataset.form));
-  }), { rootMargin: '-45% 0px -50% 0px' });
+  /* Ekranın ortasındaki bölüm, bit alanının şeklini belirler (her kaydırmada ve boyut değişiminde yeniden bakılır) */
+  function pickScene() {
+    const v = Object.values(views).find((el) => !el.hidden); if (!v) return;
+    const mid = innerHeight * 0.5; let hit = null;
+    [v, ...$$('[data-form]', v)].forEach((el) => { if (!el.dataset.form) return; const r = el.getBoundingClientRect(); if (r.top <= mid && r.bottom >= mid) hit = el; });
+    if (!hit) return;
+    scene = hit;
+    field.base(mob.matches && hit.id === 'sec-projeler' ? 'd-' + homeCard : formName(hit.dataset.form));
+  }
+  addEventListener('resize', () => requestAnimationFrame(pickScene));
   const dcIO = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { dcIO.unobserve(e.target); decode(e.target, 700); } }), { rootMargin: '0px 0px -10% 0px' });
   const rvIO = new IntersectionObserver((es) => {
     let k = 0;
@@ -979,8 +1008,6 @@ h1.t { font-size: clamp(56px, 10vw, 160px); font-weight: 600; letter-spacing: -0
     });
   });
   function bind(root) {
-    $$('[data-form]', root).forEach((s) => formIO.observe(s));
-    if (root.dataset && root.dataset.form) formIO.observe(root);
     $$('[data-dcio]', root).forEach((s) => dcIO.observe(s));
     $$('.rv, .row', root).forEach((s) => rvIO.observe(s));
     $$('[data-idx]', root).forEach((a) => {
@@ -1051,6 +1078,7 @@ h1.t { font-size: clamp(56px, 10vw, 160px); font-weight: 600; letter-spacing: -0
     queued = false;
     const max = Math.max(1, document.documentElement.scrollHeight - innerHeight), y = scrollY;
     byteEl.textContent = '0b' + Math.round(clamp(y / max, 0, 1) * 255).toString(2).padStart(8, '0');
+    pickScene();
     field.vel = Math.min(1.5, field.vel + Math.abs(y - lastY) / 500); lastY = y; if (field.dirty) field.dirty();
     if (!reduce && !views.ana.hidden) {
       const r = mf.getBoundingClientRect(), p = clamp((innerHeight * 0.35 - r.top) / Math.max(1, r.height - innerHeight * 0.75), 0, 1);
