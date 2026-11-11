@@ -1,0 +1,12 @@
+# Her gece 03:30'da (İstanbul saati) yedek alır. Sunucu o saatte kapalıysa açılınca alır (Persistent).
+# Kurulum: sudo systemctl enable --now ozaydin-backup.timer   Kontrol: systemctl list-timers ozaydin-backup
+[Unit]
+Description=ozaydin.dev gece yedeği
+
+[Timer]
+OnCalendar=*-*-* 03:30:00 Europe/Istanbul
+Persistent=true
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

@@ -117,3 +117,10 @@ STRINGS = {
     "404.lead": ("Aradığın sayfa taşınmış ya da hiç var olmamış olabilir.", "The page may have moved or never existed."),
     "404.home": ("Ana sayfaya dön", "Back to home"),
 }
+
+# --- SEO: paylaşım görselleri (OG kartları) ---
+STRINGS.update({
+    "og.home": ("Sıfırlardan ve birlerden, çalışan sistemlere.", "From zeros and ones to working systems."),
+    "og.kind_project": ("PROJE", "PROJECT"),
+    "og.kind_post": ("YAZI", "POST"),
+})

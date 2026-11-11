@@ -1,5 +1,6 @@
 from django.conf import settings
 
+from . import seo
 from .routes import alternates
 from .translate import lang
 
@@ -18,4 +19,5 @@ def site(request):
         "other_lang": "en" if lang() == "tr" else "tr",
         "alt_urls": alt,
         "site_url": settings.SITE_URL.rstrip("/"),
+        **seo.context(request),  # og_image, canonical_url
     }
