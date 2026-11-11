@@ -189,7 +189,7 @@
         }
         aFrom.needsUpdate = true;
       }
-      if (live === null || key !== (live === 'wave' ? 'floor' : live)) { toArr.set(arr); aTo.needsUpdate = true; U.uT.value = reduce ? 1 : 0; dur = d; }
+      if (live === null || key !== (live === 'wave' ? 'floor' : live)) { toArr.set(arr); aTo.needsUpdate = true; U.uT.value = reduce || field.instant ? 1 : 0; dur = d; }
       live = n; tgt = pose(n); dirty = true;
     }
     field.apply = function () { const n = this.hov || this.want; if (n !== live) setTarget(n, live === null ? 2.4 : this.hov ? 0.9 : 1.4); };
@@ -203,7 +203,7 @@
     }
     layout(); addEventListener('resize', layout);
     field.apply();
-    if (reduce) Object.assign(cur, tgt);
+    if (reduce || field.instant) { Object.assign(cur, tgt); field.instant = false; }
 
     const ptr = { x: 0, y: 0 };
     addEventListener('pointermove', (e) => {
@@ -242,10 +242,10 @@
       group.position.set(cur.x, cur.y, 0); group.scale.setScalar(cur.s);
       group.rotation.y = (reduce ? 0 : Math.sin(t * 0.25) * 0.26) + sx * 0.16;
       group.rotation.x = spinA - sy * 0.08;
-      const dk = tall && !(mob.matches && isHome()) && live !== 'floor' && live !== 'wave' ? clamp(1 - (scrollY - innerHeight * 0.08) / (innerHeight * 0.3), 0.05, 1) : 1;
+      const dk = tall && !(mob.matches && isHome()) && (live !== 'wave') ? clamp(1 - (scrollY - innerHeight * 0.08) / (innerHeight * 0.3), 0.05, 1) : 1;
       U.uDim.value = cur.dim * dk; U.uWave.value = cur.wave; U.uScale.value = 0.6 + 0.4 * Math.min(1, cur.s);
       renderer.render(scene, cam);
-      canvas.classList.add('on');
+      if (!canvas.classList.contains('on')) { canvas.classList.add('on'); const po = $('.poster'); if (po) { po.classList.add('gone'); setTimeout(() => po.remove(), 900); } }
     }
     const start = () => { if (!raf) { last = 0; raf = requestAnimationFrame(frame); } };
     document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(raf); raf = 0; } else { dirty = true; start(); } });
@@ -514,15 +514,23 @@
     document.documentElement.classList.toggle('snap', isHome());
   }
   function initPage(first) {
+    if (!first) { const po = $('.poster'); if (po) po.remove(); }
     homeCard = null; scene = null;
-    navState();
-    $$('[data-dcio]', app).forEach((s) => dcIO.observe(s));
-    $$('.rv, .row', app).forEach((s) => rvIO.observe(s));
-    hoverIdx(app); swipes(app); filters(app); gallery(app); contact(app); clock(app); manifesto(app);
-    $$('[data-dc]', app).forEach((el, i) => decode(el, 900, (first ? 300 : 380) + i * 140));
-    if (field.hover) field.hover(null);
-    onScroll();
-    document.dispatchEvent(new CustomEvent('page:ready', { detail: { page: app.dataset.page } }));
+    const steps = [
+      navState,
+      () => { $$('[data-dcio]', app).forEach((s) => dcIO.observe(s)); $$('.rv, .row', app).forEach((s) => rvIO.observe(s)); },
+      // Uzun başlıklarda harf harf çözülme ilk açılışta pahalı (yüzlerce öğe): sadece kısa başlıklarda ya da geçişlerde yap.
+      () => $$('[data-dc]', app).forEach((el, i) => { if (!first || el.textContent.trim().length <= 18) decode(el, 900, (first ? 300 : 380) + i * 140); }),
+      () => { hoverIdx(app); filters(app); gallery(app); contact(app); },
+      () => { swipes(app); clock(app); },
+      () => manifesto(app),
+      () => { if (field.hover) field.hover(null); onScroll(); },
+      () => document.dispatchEvent(new CustomEvent('page:ready', { detail: { page: app.dataset.page } })),
+    ];
+    if (!first) { steps.forEach((f) => f()); return; }
+    // İlk açılışta işler küçük parçalara bölünür: tarayıcı arada ekranı çizebilir, sayfa takılmaz.
+    const run = (i) => { if (i < steps.length) { steps[i](); setTimeout(() => run(i + 1), 0); } };
+    run(0);
   }
 
   /* ---------- Sayfa geçişi: yeni sayfayı arkadan çek, bit perdesiyle değiştir ---------- */
@@ -592,12 +600,15 @@
       const hit = !!e.target.closest('a, button, input, textarea'); if (hit !== on) { on = hit; cur.textContent = on ? '1' : '0'; }
     }, { passive: true });
     document.addEventListener('pointerleave', () => cur.classList.remove('show'));
-    (function loop(now) {
-      requestAnimationFrame(loop);
+    // Yay hareketi: imleç durunca döngü de durur, işlemciyi boşuna meşgul etmez.
+    let running = false;
+    function loop(now) {
       const dt = Math.min(0.033, (now - lastT) / 1000 || 0.016); lastT = now;
       vx += (-300 * (x - tx) - 30 * vx) * dt; vy += (-300 * (y - ty) - 30 * vy) * dt; x += vx * dt; y += vy * dt;
       cur.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
-    })(0);
+      if (Math.abs(x - tx) + Math.abs(y - ty) + Math.abs(vx) + Math.abs(vy) > 0.2) requestAnimationFrame(loop); else running = false;
+    }
+    addEventListener('pointermove', () => { if (!running) { running = true; lastT = performance.now(); requestAnimationFrame(loop); } }, { passive: true });
     document.addEventListener('pointermove', (e) => {
       const b = e.target.closest('.btn'); if (!b) return;
       const r = b.getBoundingClientRect();
@@ -621,7 +632,18 @@
     };
     document.head.appendChild(s);
   }
-  const idle = window.requestIdleCallback || ((f) => setTimeout(f, 200));
-  if (document.readyState === 'complete') idle(loadField, { timeout: 2000 });
-  else addEventListener('load', () => idle(loadField, { timeout: 2000 }), { once: true });
+  // 3B alan ziyaretçinin ilk hareketinde (fare, dokunma, kaydırma, tuş) başlar. O ana kadar ana sayfada
+  // alanın hazır çekilmiş bir resmi (poster) görünür; WebGL başlayınca resim yumuşakça kaybolur.
+  // Böylece sayfa ilk açılışta hafif kalır, telefonun işlemcisi ve pili boşuna yorulmaz.
+  const poster = $('.poster');
+  if (poster && poster.complete && poster.naturalWidth) field.instant = true;
+  else if (poster) poster.addEventListener('load', () => { if (!field.started) field.instant = true; }, { once: true });
+  const kicks = ['pointermove', 'pointerdown', 'touchstart', 'wheel', 'scroll', 'keydown'];
+  function kick() {
+    kicks.forEach((ev) => removeEventListener(ev, kick, { passive: true }));
+    if (field.started) return; field.started = true;
+    if (!poster || !poster.isConnected) field.instant = false;
+    loadField();
+  }
+  kicks.forEach((ev) => addEventListener(ev, kick, { passive: true }));
 })();

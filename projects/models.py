@@ -97,7 +97,7 @@ class ProjectImage(models.Model):
 
     def save(self, *args, **kwargs):
         # Yeni yüklenen görsel: büyük hâli en fazla 2000 px, küçük hâli 800 px, ikisi de WebP.
-        if self.image and not getattr(self.image, "_committed", True):
+        if self.image and (not self.thumb or not getattr(self.image, "_committed", True)):
             full, size = to_webp(self.image, 2000)
             small, _ = to_webp(self.image, 800)
             self.image.save(full.name, full, save=False)
