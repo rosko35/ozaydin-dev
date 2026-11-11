@@ -116,4 +116,22 @@ STRINGS = {
     "404.title": ("Bu adreste bir şey yok", "Nothing at this address"),
     "404.lead": ("Aradığın sayfa taşınmış ya da hiç var olmamış olabilir.", "The page may have moved or never existed."),
     "404.home": ("Ana sayfaya dön", "Back to home"),
+    # İletişim formu
+    "contact.ok": (
+        "Mesajın ulaştı, teşekkürler! Genelde bir gün içinde dönerim.",
+        "Your message arrived, thank you! I usually reply within a day.",
+    ),
+    "contact.fix": ("Formda düzeltilmesi gereken yerler var.", "Some fields need fixing."),
+    "contact.too_many": (
+        "Çok fazla mesaj gönderdin, biraz sonra tekrar dene.",
+        "You've sent too many messages, please try again later.",
+    ),
+    "contact.err.name_required": ("Adını yazar mısın?", "Please enter your name."),
+    "contact.err.name_long": ("Ad en fazla {n} karakter olabilir.", "Name can be at most {n} characters."),
+    "contact.err.email_required": ("E-posta adresini yazar mısın?", "Please enter your email."),
+    "contact.err.email_invalid": ("Bu e-posta adresi geçerli görünmüyor.", "This email address doesn't look valid."),
+    "contact.err.email_long": ("E-posta en fazla {n} karakter olabilir.", "Email can be at most {n} characters."),
+    "contact.err.message_required": ("Mesajını yazar mısın?", "Please write your message."),
+    "contact.err.message_short": ("Mesaj en az {n} karakter olmalı.", "Message must be at least {n} characters."),
+    "contact.err.message_long": ("Mesaj en fazla {n} karakter olabilir.", "Message can be at most {n} characters."),
 }

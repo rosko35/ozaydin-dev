@@ -14,20 +14,21 @@
           <button class="btn solid" type="button" id="copy-mail" data-copied="{% ui 'contact.copied' %}" data-selected="{% ui 'contact.selected' %}">{% ui "contact.copy" %}</button>
         </div>
         {% comment %}
-          Sözleşme (iletişim adımı): form JS ile action adresine POST edilir (X-Requested-With: fetch).
+          Sözleşme: form JS ile action adresine POST edilir (X-Requested-With: fetch).
           Sunucu JSON döner: {"ok": true/false, "message": "...", "errors": {"alan": "hata"}}.
-          Gizli alan "website" doluysa (bot), sunucu sessizce ok döner ama kaydetmez.
+          Gizli alan "website" doluysa ya da "ts" (imzalı zaman damgası) geçersizse, sunucu sessizce ok döner ama kaydetmez.
+          JS kapalıysa normal POST: başarıda ?gonderildi=1'e yönlenir, hatada alanlar .field.bad + p.err ile gelir.
         {% endcomment %}
         <form class="form" id="contact-form" method="post" action="{% lurl 'contact' %}" novalidate data-sending="{% ui 'contact.sending' %}">
           {% csrf_token %}
-          <div class="field"><label for="f-name">{% ui "contact.name" %}</label><input id="f-name" name="name" type="text" autocomplete="name" maxlength="100" required></div>
-          <div class="field"><label for="f-email">{% ui "contact.email" %}</label><input id="f-email" name="email" type="email" autocomplete="email" maxlength="200" required></div>
-          <div class="field"><label for="f-msg">{% ui "contact.message" %}</label><textarea id="f-msg" name="message" rows="5" maxlength="5000" required></textarea></div>
+          <div class="field{% if errors.name %} bad{% endif %}"><label for="f-name">{% ui "contact.name" %}</label><input id="f-name" name="name" type="text" autocomplete="name" maxlength="100" required value="{{ values.name|default:'' }}"{% if errors.name %} aria-invalid="true" aria-describedby="e-name"{% endif %}>{% if errors.name %}<p class="err" id="e-name">{{ errors.name }}</p>{% endif %}</div>
+          <div class="field{% if errors.email %} bad{% endif %}"><label for="f-email">{% ui "contact.email" %}</label><input id="f-email" name="email" type="email" autocomplete="email" maxlength="200" required value="{{ values.email|default:'' }}"{% if errors.email %} aria-invalid="true" aria-describedby="e-email"{% endif %}>{% if errors.email %}<p class="err" id="e-email">{{ errors.email }}</p>{% endif %}</div>
+          <div class="field{% if errors.message %} bad{% endif %}"><label for="f-msg">{% ui "contact.message" %}</label><textarea id="f-msg" name="message" rows="5" maxlength="5000" required{% if errors.message %} aria-invalid="true" aria-describedby="e-message"{% endif %}>{{ values.message|default:'' }}</textarea>{% if errors.message %}<p class="err" id="e-message">{{ errors.message }}</p>{% endif %}</div>
           <div class="hp" aria-hidden="true"><label for="f-website">{% ui "contact.hp" %}</label><input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
-          <input type="hidden" name="ts" value="{{ form_ts|default:'' }}">
+          <input type="hidden" name="ts" value="{{ form_ts }}">
           <div class="form-foot">
             <button class="btn solid" type="submit">{% ui "contact.send" %}</button>
-            <p class="note" id="note" role="status" aria-live="polite">{% ui "contact.note" %}</p>
+            <p class="note{% if note_ok %} ok{% endif %}" id="note" role="status" aria-live="polite">{% if note %}{{ note }}{% else %}{% ui "contact.note" %}{% endif %}</p>
           </div>
         </form>
         <div class="soon">
