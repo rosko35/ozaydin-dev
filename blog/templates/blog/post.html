@@ -1,0 +1,39 @@
+{% extends "base.html" %}{% load site %}
+{% block extra_head %}{% if preview %}<meta name="robots" content="noindex">{% endif %}<link rel="alternate" type="application/rss+xml" title="{% ui 'blog.rss_title' %}" href="{{ site_url }}{% lurl 'blog_feed' %}">{% endblock %}
+{% block content %}
+<article class="page pad post-page">
+  <div class="wrap">
+    <header data-form="d-{{ idx }}">
+      <div class="page-head">
+        <a class="link back" href="{% lurl 'blog' %}"><span class="ar" aria-hidden="true">←</span> {% ui "blog.back" %}</a>
+        {% if preview %}<p class="draft-flag" role="status"><span class="label">{% ui "blog.draft" %}</span> {% ui "blog.draft_p" %}</p>{% endif %}
+        <p class="label post-meta">{% if post.published_at %}<time datetime="{{ post.published_at|date:'c' }}">{{ post.published_at|date:"Y-m-d" }}</time> · {% endif %}{% ui "blog.minutes" n=post.reading_minutes %}{% for tg in post.tags.all %} · <a href="{% lurl 'blog_tag' slug=tg.slug %}">#{{ tg|t:"name" }}</a>{% endfor %}</p>
+        <h1 class="t post-title" data-dc tabindex="-1">{{ post|t:"title" }}</h1>
+        <p class="lead post-lead">{{ post|t:"summary" }}</p>
+        {% if post.only_tr %}<p class="only-tr"><i class="bit" aria-hidden="true"></i>{% ui "blog.only_tr" %}</p>{% endif %}
+      </div>
+    </header>
+    <div data-form="floor">
+      {% if post.cover %}
+      <figure class="panel glass rv cover"><img src="{{ post.cover.url }}" alt="{{ post|t:'title' }}" loading="eager"></figure>
+      {% endif %}
+      <div class="prose" lang="{{ post.body_lang }}">{{ post.body_html|safe }}</div>
+
+      {% with pr=post.related_project %}{% if pr and pr.is_published %}
+      <a class="card glass related rv" href="{% lurl 'project' slug=pr.slug %}">
+        <span class="label">{% ui "blog.related" %} · {{ pr.idx }}</span>
+        <span class="n">{{ pr.title }} <span class="ar" aria-hidden="true">→</span></span>
+        <span class="s">{{ pr|t:"summary" }}</span>
+      </a>
+      {% endif %}{% endwith %}
+
+      {% if prev_post or next_post %}
+      <nav class="post-nav" aria-label="{% ui 'blog.posts_nav' %}">
+        {% if prev_post %}<a class="next prev" href="{% lurl 'post' slug=prev_post.slug %}" data-idx="{{ prev_post.idx }}" rel="prev"><span class="label">{% ui "blog.prev" %} · {{ prev_post.idx }}</span><span class="n"><span aria-hidden="true">←</span> {{ prev_post|t:"title" }}</span></a>{% else %}<span></span>{% endif %}
+        {% if next_post %}<a class="next" href="{% lurl 'post' slug=next_post.slug %}" data-idx="{{ next_post.idx }}" rel="next"><span class="label">{% ui "blog.next" %} · {{ next_post.idx }}</span><span class="n">{{ next_post|t:"title" }} <span aria-hidden="true">→</span></span></a>{% endif %}
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</article>
+{% endblock %}
