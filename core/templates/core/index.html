@@ -537,7 +537,7 @@ h1.t { font-size: clamp(56px, 10vw, 160px); font-weight: 600; letter-spacing: -0
         <section class="ab-sec">
           <h2>Şu an</h2>
           <ul class="now">
-            <li><i class="bit" aria-hidden="true"></i><span>Bu siteyi Django ile kendi sunucumda yayına alıyorum.</span></li>
+            <li><i class="bit" aria-hidden="true"></i><span>Bu siteye yeni projeler ekliyorum.</span></li>
             <li><i class="bit" aria-hidden="true"></i><span>Doğu Akdeniz Üniversitesi'nde lisansıma devam ediyorum.</span></li>
             <li><i class="bit" aria-hidden="true"></i><span>Uzun dönem staja açığım.</span></li>
           </ul>
@@ -624,19 +624,12 @@ h1.t { font-size: clamp(56px, 10vw, 160px); font-weight: 600; letter-spacing: -0
       result: 'Dört kişilik ekiple 48 saatte oynanabilir bir oyun teslim ettik; oyuncu her ziyaretçide belgeleri kurallarla karşılaştırıp karar veriyor.',
       flow: ['Kimlik kartı', 'Sağlık belgesi', 'Kural kitabı', 'Karar'] },
     { slug: 'ozaydin-dev', idx: '010', name: 'ozaydin.dev', year: 2026, cats: ['Backend', 'Web'],
-      stack: 'Django · Three.js · PostgreSQL · Nginx', role: 'Tasarım ve geliştirme', dur: 'Devam ediyor',
-      sum: 'Şu an baktığın site. Django ile yazılıyor, kendi sunucumda yayına alınacak.',
+      stack: 'Django · Three.js · PostgreSQL · Nginx', role: 'Tasarım ve geliştirme', dur: 'Yayında · gelişiyor',
+      sum: 'Şu an baktığın site. Django ile yazıldı, kendi sunucumda yayında.',
       problem: 'CV gibi durmayan, ne yaptığımı anlatmak yerine gösteren bir site istedim.',
-      did: ['Siteyi Python ve Django ile kuruyorum; projeler admin panelinden eklenecek.', 'Binlerce 0 ve 1\'den oluşan 3D alanı ve sayfa geçişlerini Three.js ile hazırladım.', 'Ubuntu sunucuda Nginx, Gunicorn, PostgreSQL ve HTTPS ile yayına alacağım.'],
+      did: ['Siteyi Python ve Django ile kuruyorum; projeler admin panelinden eklenecek.', 'Binlerce 0 ve 1\'den oluşan 3D alanı ve sayfa geçişlerini Three.js ile hazırladım.', 'Ubuntu sunucuda Nginx, Gunicorn, PostgreSQL ve HTTPS ile yayına aldım.'],
       result: 'Sayfa önce metin olarak açılır; 3D alan arkadan yüklenir, zayıf cihazlarda kendini hafifletir.',
-      flow: ['Tarayıcı', 'Nginx', 'Gunicorn · Django', 'PostgreSQL'] },
-    { slug: 'e-ticaret', idx: '011', name: 'E-Ticaret Sitesi', year: 2022, cats: ['Backend', 'Web'],
-      stack: 'Python · Django · SQLite · HTML · CSS', role: 'Tek başıma', dur: null,
-      sum: 'Kullanıcı girişi, kategorili ürün kataloğu ve arama içeren, Django ile yazılmış bir e-ticaret sitesi.',
-      problem: 'Bir web uygulamasının kullanıcı yönetiminden veritabanına kadar nasıl çalıştığını kendi elimle kurarak öğrenmek istedim.',
-      did: ['Kayıt, giriş ve çıkışı Django\'nun authentication sistemiyle kurdum; şifre eşleşmesi, kullanılmış e-posta ve özel karakter kontrolleri ekledim.', 'Ürünleri kategorilere ayırdım; ürün görsellerini Django admin panelinden yüklenebilir yaptım.', 'Ürün adına veya kategoriye göre arama ekledim.'],
-      result: 'Kullanıcılar hesap açıp giriş yapabiliyor, ürünleri kategoriye göre görüp arayabiliyor.',
-      flow: ['Tarayıcı', 'Django views', 'Django ORM', 'SQLite'], repo: 'https://github.com/noxadsecula/Ecommerce-Django' }
+      flow: ['Tarayıcı', 'Nginx', 'Gunicorn · Django', 'PostgreSQL'] }
   ];
   const bySlug = Object.fromEntries(PROJECTS.map((p) => [p.slug, p]));
 
