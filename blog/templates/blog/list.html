@@ -1,10 +1,41 @@
 {% extends "base.html" %}{% load site %}
+{% block extra_head %}<link rel="alternate" type="application/rss+xml" title="{% ui 'blog.rss_title' %}" href="{{ site_url }}{% lurl 'blog_feed' %}">{% endblock %}
 {% block content %}
 <div class="page pad" data-form="floor">
   <div class="wrap">
     <div class="page-head">
-      <h1 class="t" data-dc tabindex="-1">{% ui "blog.title" %}</h1>
+      <p class="label">0b{{ total|binary }} · {% ui "blog.count" n=total %}{% if page_obj.paginator.num_pages > 1 %} · {% ui "blog.page" n=page_obj.number total=page_obj.paginator.num_pages %}{% endif %}</p>
+      <h1 class="t" data-dc tabindex="-1">{% if tag %}#{{ tag|t:"name" }}{% else %}{% ui "blog.title" %}{% endif %}</h1>
     </div>
+
+    {% if tags %}
+    <nav class="filters blog-tags" aria-label="{% ui 'blog.tags' %}">
+      <a class="tog" href="{% lurl 'blog' %}"{% if not tag %} aria-current="page"{% endif %}><i class="bit" aria-hidden="true"></i>{% ui "blog.all" %}</a>
+      {% for tg in tags %}<a class="tog" href="{% lurl 'blog_tag' slug=tg.slug %}"{% if tag and tag.pk == tg.pk %} aria-current="page"{% endif %}><i class="bit" aria-hidden="true"></i>#{{ tg|t:"name" }}</a>{% endfor %}
+      <a class="link rss" href="{% lurl 'blog_feed' %}">{% ui "blog.rss" %} <span class="ar" aria-hidden="true">↗</span></a>
+    </nav>
+    {% endif %}
+
+    {% if posts %}
+    <div class="rows posts">
+      {% for p in posts %}{% include "blog/_row.html" %}{% endfor %}
+    </div>
+    {% if page_obj.has_other_pages %}
+    <nav class="pager" aria-label="{% ui 'blog.pages' %}">
+      {% if page_obj.has_previous %}<a class="link back" href="?page={{ page_obj.previous_page_number }}" rel="prev"><span class="ar" aria-hidden="true">←</span> {% ui "blog.newer" %}</a>{% else %}<span></span>{% endif %}
+      <span class="label">{{ page_obj.number|binary }} / {{ page_obj.paginator.num_pages|binary }}</span>
+      {% if page_obj.has_next %}<a class="link" href="?page={{ page_obj.next_page_number }}" rel="next">{% ui "blog.older" %} <span class="ar" aria-hidden="true">→</span></a>{% else %}<span></span>{% endif %}
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="blog-empty panel glass">
+      <span class="zero" aria-hidden="true">0</span>
+      <div>
+        <h2>{% if tag %}{% ui "blog.tag_empty" %}{% else %}{% ui "blog.empty" %}{% endif %}</h2>
+        <p>{% if tag %}<a class="link back" href="{% lurl 'blog' %}"><span class="ar" aria-hidden="true">←</span> {% ui "blog.all" %}</a>{% else %}{% ui "blog.empty_p" %}{% endif %}</p>
+      </div>
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

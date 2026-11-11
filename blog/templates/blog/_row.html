@@ -1,0 +1,6 @@
+{% load site %}<a class="row post" href="{% lurl 'post' slug=p.slug %}">
+  <time class="i" datetime="{{ p.published_at|date:'Y-m-d' }}">{{ p.published_at|date:"Y-m-d" }}</time>
+  <span class="n">{{ p|t:"title" }}</span>
+  <span class="y">{% if p.only_tr %}<abbr lang="tr" title="{% ui 'blog.only_tr' %}">{% ui "blog.only_tr_short" %}</abbr> · {% endif %}{% ui "blog.minutes" n=p.reading_minutes %}</span>
+  <span class="s">{{ p|t:"summary" }}</span>
+</a>

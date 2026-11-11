@@ -1,1 +1,4 @@
-{# Ana sayfadaki son yazılar. Blog adımında doldurulacak. Değişken: posts #}
+{# Ana sayfadaki son yazılar. Değişken: posts #}
+<div class="rows posts">
+  {% for p in posts %}{% include "blog/_row.html" %}{% endfor %}
+</div>
