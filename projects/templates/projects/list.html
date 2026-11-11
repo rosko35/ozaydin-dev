@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% load site %}
+{% block content %}
+<div class="page pad" data-form="floor">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="label" id="p-count">0b{{ projects|length|binary }} · {% ui "projects.count" n=projects|length %}</p>
+      <h1 class="t" data-dc tabindex="-1">{% ui "projects.title" %}</h1>
+    </div>
+    {% if categories %}
+    <div class="filters" role="group" aria-label="{% ui 'projects.filter' %}" id="filters">
+      {% for c in categories %}<button class="tog" type="button" aria-pressed="false" data-cat="{{ c.slug }}"><i class="bit" aria-hidden="true"></i>{{ c|t:"name" }}</button>{% endfor %}
+      <span class="label mask" id="mask" data-word="{% ui 'projects.mask' %}">{% ui "projects.mask" %} {% for c in categories %}0{% endfor %}</span>
+    </div>
+    {% endif %}
+    <div class="rows" id="all-rows">
+      {% for p in projects %}
+      <div class="rw" data-cats="{% for c in p.categories.all %}{{ c.slug }} {% endfor %}"><div>{% include "projects/_row.html" with wide=True %}</div></div>
+      {% empty %}<p class="empty">{% ui "projects.none" %}</p>{% endfor %}
+    </div>
+    <p class="empty" id="p-empty" hidden>{% ui "projects.empty" %}</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% load site %}<a class="row{% if wide %} wide{% endif %}" href="{% lurl 'project' slug=p.slug %}" data-idx="{{ p.idx }}">
+  <span class="i">{{ p.idx }}</span><span class="n">{{ p.title }}</span>
+  {% if not wide %}<span class="y">{{ p.year|default:"" }}</span>{% endif %}
+  <span class="s">{{ p|t:"summary" }}</span>
+  {% tape p.title %}
+  {% if wide %}<span class="y">{{ p.year|default:"" }}</span>{% endif %}
+</a>

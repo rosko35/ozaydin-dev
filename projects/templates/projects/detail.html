@@ -1,0 +1,59 @@
+{% extends "base.html" %}{% load site %}
+{% block content %}
+<div class="page pad">
+  <div class="wrap">
+    <div data-form="d-{{ project.idx }}">
+      <div class="page-head">
+        <a class="link back" href="{% lurl 'projects' %}"><span class="ar" aria-hidden="true">←</span> {% ui "project.back" %}</a>
+        <p class="label">{{ project.idx }}{% for c in project.categories.all %} · {{ c|t:"name" }}{% endfor %}</p>
+        <h1 class="t pd-title" data-dc tabindex="-1">{{ project.title }}</h1>
+        <p class="lead pd-lead">{{ project|t:"summary" }}</p>
+      </div>
+      <dl class="pd-meta">
+        {% if project.year %}<div><dt class="label">{% ui "project.year" %}</dt><dd>{{ project.year }}</dd></div>{% endif %}
+        {% with role=project|t:"role" %}{% if role %}<div><dt class="label">{% ui "project.role" %}</dt><dd>{{ role }}</dd></div>{% endif %}{% endwith %}
+        {% with dur=project|t:"duration" %}{% if dur %}<div><dt class="label">{% ui "project.duration" %}</dt><dd>{{ dur }}</dd></div>{% endif %}{% endwith %}
+        {% if project.stack %}<div><dt class="label">{% ui "project.stack" %}</dt><dd>{{ project.stack }}</dd></div>{% endif %}
+        {% if project.repo_url %}<div><dt class="label">{% ui "project.code" %}</dt><dd><a class="link" href="{{ project.repo_url }}" target="_blank" rel="noopener">GitHub ↗</a></dd></div>{% endif %}
+        {% if project.live_url %}<div><dt class="label">{% ui "project.live" %}</dt><dd><a class="link" href="{{ project.live_url }}" target="_blank" rel="noopener">{{ project.live_url|cut:"https://"|cut:"http://" }} ↗</a></dd></div>{% endif %}
+      </dl>
+    </div>
+    <div data-form="floor">
+      {% if project.cover %}
+      <figure class="panel glass rv cover"><img src="{{ project.cover.url }}" alt="{{ project.title }}" loading="eager"></figure>
+      {% else %}
+      <figure class="panel glass rv tape-panel">{% tape project.title %}
+        <figcaption class="label">“{{ project.title }}” · {% ui "project.tape" n=project.title|nbytes %}</figcaption></figure>
+      {% endif %}
+      {% with problem=project|t:"problem" %}{% if problem %}
+      <section class="pd-sec grid"><h2>{% ui "project.problem" %}</h2><div class="body"><p>{{ problem|linebreaksbr }}</p></div></section>
+      {% endif %}{% endwith %}
+      {% with did=project|t:"did" %}{% if did %}
+      <section class="pd-sec grid"><h2>{% ui "project.did" %}</h2><div class="body"><ul class="did">{% for d in did|lines %}<li class="rv">{{ d }}</li>{% endfor %}</ul></div></section>
+      {% endif %}{% endwith %}
+      {% if project.images.all %}
+      <section class="pd-sec grid"><h2>{% ui "project.gallery" %}</h2>
+        <div class="body"><div class="gallery">
+          {% for im in project.images.all %}
+          <a class="shot rv" href="{{ im.image.url }}" data-w="{{ im.width }}" data-h="{{ im.height }}" data-caption="{{ im|t:'caption' }}" aria-label="{% ui 'gallery.open' %}{% with c=im|t:'caption' %}{% if c %}: {{ c }}{% endif %}{% endwith %}">
+            <img src="{{ im.thumb.url|default:im.image.url }}" alt="{{ im|t:'caption' }}" loading="lazy" width="{{ im.width }}" height="{{ im.height }}">
+          </a>
+          {% endfor %}
+        </div></div>
+      </section>
+      {% endif %}
+      {% with flow=project|t:"flow" %}{% if flow %}
+      <section class="pd-sec grid"><h2>{% ui "project.flow" %}</h2><div class="body"><ol class="flow">
+        {% for f in flow|lines %}{% if not forloop.first %}<li class="wire" aria-hidden="true"></li>{% endif %}<li class="node glass">{{ f }}</li>{% endfor %}
+      </ol></div></section>
+      {% endif %}{% endwith %}
+      {% with result=project|t:"result" %}{% if result %}
+      <section class="pd-sec grid"><h2>{% ui "project.result" %}</h2><div class="body"><p class="strong">{{ result|linebreaksbr }}</p></div></section>
+      {% endif %}{% endwith %}
+      {% if next_project %}
+      <a class="next" href="{% lurl 'project' slug=next_project.slug %}" data-idx="{{ next_project.idx }}"><span class="label">{% ui "project.next" %} · {{ next_project.idx }}</span><span class="n">{{ next_project.title }} <span aria-hidden="true">→</span></span></a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

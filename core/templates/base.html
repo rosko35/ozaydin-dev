@@ -1,0 +1,71 @@
+{% load static site %}<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}{% if page_title %}{{ page_title }} · ozaydin.dev{% else %}{% ui "site.title" %}{% endif %}{% endblock %}</title>
+{% include "core/_meta.html" %}
+<meta name="theme-color" content="#02040A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2302040A'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='15' font-weight='700' fill='%23F1F3F8' text-anchor='middle'%3E01%3C/text%3E%3C/svg%3E">
+<link rel="preload" href="{% static 'core/fonts/geist-latin-600-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{% static 'core/fonts/geist-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{% static 'core/site.css' %}">
+<link rel="stylesheet" href="{% static 'blog/blog.css' %}">
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<canvas id="bits" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="top glass pad">
+  <div class="wrap top-in">
+    <a class="brand" href="{% lurl 'home' %}">ozaydin.dev</a>
+    <span class="byte mono" id="byte" aria-hidden="true">0b00000000</span>
+    <nav class="nav" aria-label="{% ui 'nav.pages' %}">
+      <a href="{% lurl 'projects' %}" data-nav="projects"><i class="bit" aria-hidden="true"></i>{% ui "nav.projects" %}</a>
+      <a href="{% lurl 'blog' %}" data-nav="blog"><i class="bit" aria-hidden="true"></i>{% ui "nav.blog" %}</a>
+      <a href="{% lurl 'about' %}" data-nav="about"><i class="bit" aria-hidden="true"></i>{% ui "nav.about" %}</a>
+      <a href="{% lurl 'contact' %}" data-nav="contact"><i class="bit" aria-hidden="true"></i>{% ui "nav.contact" %}</a>
+    </nav>
+    <nav class="langs" aria-label="{% ui 'lang.switch' %}">
+      <a href="{{ alt_urls.tr|default:'/' }}" hreflang="tr" lang="tr" data-lang="tr"{% if lang == 'tr' %} aria-current="true"{% endif %}>TR</a>
+      <a href="{{ alt_urls.en|default:'/en/' }}" hreflang="en" lang="en" data-lang="en"{% if lang == 'en' %} aria-current="true"{% endif %}>EN</a>
+    </nav>
+  </div>
+</header>
+
+<main id="app" data-page="{{ page_key|default:'' }}" data-title="{% block title_again %}{% if page_title %}{{ page_title }} · ozaydin.dev{% else %}{% ui 'site.title' %}{% endif %}{% endblock %}" data-alt-tr="{{ alt_urls.tr }}" data-alt-en="{{ alt_urls.en }}">
+{% block content %}{% endblock %}
+</main>
+
+<footer class="foot pad">
+  <div class="wrap foot-in">
+    <nav aria-label="{% ui 'nav.footer' %}">
+      <a href="{% lurl 'home' %}">{% ui "nav.home_long" %}</a><a href="{% lurl 'projects' %}">{% ui "nav.projects" %}</a><a href="{% lurl 'blog' %}">{% ui "nav.blog" %}</a><a href="{% lurl 'about' %}">{% ui "nav.about" %}</a><a href="{% lurl 'contact' %}">{% ui "nav.contact" %}</a>
+    </nav>
+    <span>{% ui "copyright" %}</span>
+    <span class="links"><a href="https://github.com/rosko35" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/emre-%C3%B6zayd%C4%B1n-b65409270/" target="_blank" rel="noopener">LinkedIn</a></span>
+  </div>
+</footer>
+
+<nav class="tabbar glass" aria-label="{% ui 'nav.pages' %}">
+  <a href="{% lurl 'home' %}" data-nav="home"><i class="tb" aria-hidden="true"></i>{% ui "nav.home" %}</a>
+  <a href="{% lurl 'projects' %}" data-nav="projects"><i class="tb" aria-hidden="true"></i>{% ui "nav.projects" %}</a>
+  <a href="{% lurl 'blog' %}" data-nav="blog"><i class="tb" aria-hidden="true"></i>{% ui "nav.blog" %}</a>
+  <a href="{% lurl 'about' %}" data-nav="about"><i class="tb" aria-hidden="true"></i>{% ui "nav.about" %}</a>
+  <a href="{% lurl 'contact' %}" data-nav="contact"><i class="tb" aria-hidden="true"></i>{% ui "nav.contact" %}</a>
+</nav>
+
+<canvas id="wipe" aria-hidden="true"></canvas>
+<div id="cur" aria-hidden="true">0</div>
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="{% ui 'project.gallery' %}">
+  <button class="lb-close" type="button" aria-label="{% ui 'gallery.close' %}">×</button>
+  <button class="lb-prev" type="button" aria-label="{% ui 'gallery.prev' %}">←</button>
+  <figure><img alt=""><figcaption class="label"></figcaption></figure>
+  <button class="lb-next" type="button" aria-label="{% ui 'gallery.next' %}">→</button>
+</div>
+
+<script src="{% static 'core/site.js' %}" data-three="{% static 'core/vendor/three-r128.min.js' %}" defer></script>
+</body>
+</html>

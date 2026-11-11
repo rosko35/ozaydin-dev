@@ -1,0 +1,44 @@
+{% extends "base.html" %}{% load site %}
+{% block content %}
+<div class="page pad" data-form="c">
+  <div class="wrap grid">
+    <div class="left">
+      <div class="page-head">
+        <p class="state"><span class="label">{% ui "contact.state" %}</span><b id="conn">0</b></p>
+        <h1 class="t" data-dc tabindex="-1">{% ui "contact.title" %}</h1>
+        <p class="lead">{% ui "contact.lead" %}</p>
+      </div>
+      <div class="card glass">
+        <div class="mailrow">
+          <span class="addr" id="mail">emreozaydn60@gmail.com</span>
+          <button class="btn solid" type="button" id="copy-mail" data-copied="{% ui 'contact.copied' %}" data-selected="{% ui 'contact.selected' %}">{% ui "contact.copy" %}</button>
+        </div>
+        {% comment %}
+          Sözleşme (iletişim adımı): form JS ile action adresine POST edilir (X-Requested-With: fetch).
+          Sunucu JSON döner: {"ok": true/false, "message": "...", "errors": {"alan": "hata"}}.
+          Gizli alan "website" doluysa (bot), sunucu sessizce ok döner ama kaydetmez.
+        {% endcomment %}
+        <form class="form" id="contact-form" method="post" action="{% lurl 'contact' %}" novalidate data-sending="{% ui 'contact.sending' %}">
+          {% csrf_token %}
+          <div class="field"><label for="f-name">{% ui "contact.name" %}</label><input id="f-name" name="name" type="text" autocomplete="name" maxlength="100" required></div>
+          <div class="field"><label for="f-email">{% ui "contact.email" %}</label><input id="f-email" name="email" type="email" autocomplete="email" maxlength="200" required></div>
+          <div class="field"><label for="f-msg">{% ui "contact.message" %}</label><textarea id="f-msg" name="message" rows="5" maxlength="5000" required></textarea></div>
+          <div class="hp" aria-hidden="true"><label for="f-website">{% ui "contact.hp" %}</label><input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+          <input type="hidden" name="ts" value="{{ form_ts|default:'' }}">
+          <div class="form-foot">
+            <button class="btn solid" type="submit">{% ui "contact.send" %}</button>
+            <p class="note" id="note" role="status" aria-live="polite">{% ui "contact.note" %}</p>
+          </div>
+        </form>
+        <div class="soon">
+          <span class="label">{% ui "contact.profiles" %}</span>
+          <div class="links">
+            <a href="https://github.com/rosko35" target="_blank" rel="noopener">GitHub ↗</a>
+            <a href="https://www.linkedin.com/in/emre-%C3%B6zayd%C4%B1n-b65409270/" target="_blank" rel="noopener">LinkedIn ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

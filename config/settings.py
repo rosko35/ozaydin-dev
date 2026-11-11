@@ -7,6 +7,9 @@ Sunucuda şu ortam değişkenleri ayarlanır:
   DJANGO_DEBUG           0
   DJANGO_ALLOWED_HOSTS   ozaydin.dev,www.ozaydin.dev
   DJANGO_DB_NAME         ozaydin (PostgreSQL veritabanı adı)
+  DJANGO_ADMIN_URL       yönetim paneli adresi (varsayılan: admin/)
+  DJANGO_EMAIL_HOST_USER / DJANGO_EMAIL_HOST_PASSWORD   iletişim formu bildirimi (Gmail uygulama şifresi)
+  DJANGO_CONTACT_TO      mesajların gideceği adres
 """
 
 import os
@@ -26,12 +29,17 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sitemaps",
     "core",
+    "projects",
+    "blog",
+    "contact",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "core.middleware.LanguageFromPath",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -51,6 +59,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context.site",
             ],
         },
     },
@@ -85,12 +94,43 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "tr"
+LANGUAGES = [("tr", "Türkçe"), ("en", "English")]
 TIME_ZONE = "Europe/Istanbul"
 USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Admin'den yüklenen dosyalar (proje fotoğrafları, blog kapakları). Sunucuda Nginx /media/ altından verir.
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Yayında statik dosyaların adına içerik özeti eklenir (site.3f2a1c.css): tarayıcı uzun süre önbellekte tutar,
+# dosya değişince adı da değişir. Bilgisayarda (DEBUG) gerek yok.
+if not DEBUG:
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"},
+    }
+SITE_URL = os.environ.get("DJANGO_SITE_URL", "https://ozaydin.dev")
+ADMIN_URL = os.environ.get("DJANGO_ADMIN_URL", "admin/")
+
+# E-posta: ayarlı değilse mesajlar sadece admin'e kaydedilir, e-posta gönderilmez.
+EMAIL_HOST = os.environ.get("DJANGO_EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("DJANGO_EMAIL_PORT", "587"))
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get("DJANGO_EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("DJANGO_EMAIL_HOST_PASSWORD", "")
+EMAIL_TIMEOUT = 10
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "noreply@ozaydin.dev"
+CONTACT_TO = os.environ.get("DJANGO_CONTACT_TO", "emreozaydn60@gmail.com")
+if not EMAIL_HOST_USER:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Yayında (DEBUG kapalıyken) güvenlik ayarları
 if not DEBUG:

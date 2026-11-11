@@ -1,0 +1,4 @@
+{% load site %}<meta name="description" content="{% if page_description %}{{ page_description|striptags|truncatechars:160 }}{% else %}{% ui 'site.description' %}{% endif %}">
+{% if alt_urls %}<link rel="alternate" hreflang="tr" href="{{ site_url }}{{ alt_urls.tr }}">
+<link rel="alternate" hreflang="en" href="{{ site_url }}{{ alt_urls.en }}">
+<link rel="alternate" hreflang="x-default" href="{{ site_url }}{{ alt_urls.tr }}">{% endif %}

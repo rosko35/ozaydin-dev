@@ -1,7 +1,3 @@
-from django.urls import path
+"""Dilden bağımsız adresler (robots.txt, sitemap.xml). SEO adımında doldurulur."""
 
-from . import views
-
-urlpatterns = [
-    path("", views.home, name="home"),
-]
+urlpatterns = []

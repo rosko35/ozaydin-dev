@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% load site %}
+{% block content %}
+<div class="page pad" data-form="0">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="label">404 · 0b110010100</p>
+      <h1 class="t" data-dc tabindex="-1">{% ui "404.title" %}</h1>
+      <p class="lead">{% ui "404.lead" %}</p>
+      <div><a class="btn solid" href="{% lurl 'home' %}">{% ui "404.home" %}</a></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

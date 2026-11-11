@@ -1,0 +1,92 @@
+{% extends "base.html" %}{% load site %}
+{% block content %}
+<section class="hero pad" data-form="01">
+  <div class="wrap">
+    <div class="clock" id="clock" role="img" aria-label="{% ui 'clock.label' %}" data-city="{% ui 'clock.city' %}" data-label="{% ui 'clock.label' %}">
+      <div class="clock-grid" aria-hidden="true"></div>
+      <span class="label" id="clock-label">{% ui "clock.city" %}</span>
+    </div>
+  </div>
+  <div aria-hidden="true"></div>
+  <div class="wrap grid hero-main">
+    <div class="hero-name">
+      <p class="eyebrow">{% ui "home.eyebrow" %}</p>
+      <h1><span class="ln" data-dc>Emre</span><span class="ln" data-dc>Özaydın</span></h1>
+    </div>
+    <div class="hero-side">
+      <p>{% ui "home.lead" %}</p>
+      <div class="actions">
+        <button class="btn solid" type="button" data-scroll="#sec-projeler">{% ui "home.cta_projects" %}</button>
+        <a class="btn ghost glass" href="{% lurl 'contact' %}">{% ui "home.cta_contact" %}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mf pad" data-form="wave" id="mf">
+  <div class="mf-in wrap">
+    <p class="label">{% ui "home.principle" %}</p>
+    <p class="big" id="mf-text">{% ui "home.manifesto" %}</p>
+  </div>
+</section>
+
+<section class="sec pad" id="sec-projeler" data-form="floor">
+  <div class="wrap grid">
+    <div class="left">
+      <div class="sec-head">
+        <h2 class="h" data-dcio>{% ui "home.projects" %}</h2>
+        <a class="link" href="{% lurl 'projects' %}">{% ui "home.see_all" %} <span class="ar" aria-hidden="true">→</span></a>
+      </div>
+      <div class="rows" id="home-rows">
+        {% for p in projects %}{% include "projects/_row.html" with wide=False %}{% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if posts %}
+<section class="sec pad" id="sec-yazilar" data-form="floor">
+  <div class="wrap grid">
+    <div class="left">
+      <div class="sec-head">
+        <h2 class="h" data-dcio>{% ui "home.writing" %}</h2>
+        <a class="link" href="{% lurl 'blog' %}">{% ui "home.all_posts" %} <span class="ar" aria-hidden="true">→</span></a>
+      </div>
+      {% include "blog/_home_latest.html" %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="sec pad" data-form="helix">
+  <div class="wrap grid">
+    <div class="left">
+      <div class="sec-head"><h2 class="h" data-dcio>{% ui "home.what" %}</h2></div>
+      <div class="caps">
+        <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>{% ui "cap.backend" %}</h3>
+          <p>{% ui "cap.backend_p" %}</p>
+          <p class="tools">Python · Django · C# · SQL</p></div>
+        <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>{% ui "cap.game" %}</h3>
+          <p>{% ui "cap.game_p" %}</p>
+          <p class="tools">Unity · C#</p></div>
+        <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>{% ui "cap.frontend" %}</h3>
+          <p>{% ui "cap.frontend_p" %}</p>
+          <p class="tools">HTML · CSS · JavaScript</p></div>
+        <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>{% ui "cap.video" %}</h3>
+          <p>{% ui "cap.video_p" %}</p>
+          <p class="tools">Adobe Premiere Pro · After Effects</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec cta pad" data-form="sphere">
+  <div class="wrap cta-in">
+    <h2 data-dcio>{% ui "home.closing" %}</h2>
+    <div class="cta-row">
+      <a class="btn solid" href="{% lurl 'contact' %}">{% ui "home.cta_contact" %}</a>
+      <span class="addr">emreozaydn60@gmail.com</span>
+    </div>
+  </div>
+</section>
+{% endblock %}

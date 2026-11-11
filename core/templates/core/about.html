@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% load site %}
+{% block content %}
+<div class="page pad" data-form="helix">
+  <div class="wrap grid">
+    <div class="left">
+      <div class="page-head">
+        <p class="label">{% ui "about.eyebrow" %}</p>
+        <h1 class="t" data-dc tabindex="-1">{% ui "about.title" %}</h1>
+        {% if lang == "en" %}
+        <p class="lead">I studied computer programming at Yaşar University and I'm now doing a bachelor's in <b>information systems and technologies</b> at Eastern Mediterranean University.</p>
+        {% else %}
+        <p class="lead">Yaşar Üniversitesi'nde bilgisayar programcılığı okudum, şimdi Doğu Akdeniz Üniversitesi'nde <b>bilişim sistemleri ve teknolojileri</b> lisansına devam ediyorum.</p>
+        {% endif %}
+      </div>
+      {% if lang == "en" %}{% include "core/about/en.html" %}{% else %}{% include "core/about/tr.html" %}{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
