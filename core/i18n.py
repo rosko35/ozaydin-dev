@@ -163,3 +163,10 @@ STRINGS = {
     "contact.err.message_short": ("Mesaj en az {n} karakter olmalı.", "Message must be at least {n} characters."),
     "contact.err.message_long": ("Mesaj en fazla {n} karakter olabilir.", "Message can be at most {n} characters."),
 }
+
+# --- SEO: paylaşım görselleri (OG kartları) ---
+STRINGS.update({
+    "og.home": ("Sıfırlardan ve birlerden, çalışan sistemlere.", "From zeros and ones to working systems."),
+    "og.kind_project": ("PROJE", "PROJECT"),
+    "og.kind_post": ("YAZI", "POST"),
+})

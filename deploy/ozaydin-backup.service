@@ -1,0 +1,15 @@
+# Yedekleme işi (tek seferlik çalışır). Zamanlayıcısı: ozaydin-backup.timer
+# Kurulum: sudo cp deploy/ozaydin-backup.* /etc/systemd/system/
+# Elle çalıştırma: sudo systemctl start ozaydin-backup   Kayıtlar: journalctl -u ozaydin-backup
+[Unit]
+Description=ozaydin.dev yedekleme (PostgreSQL + media)
+After=postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=oneshot
+User=emre
+Group=emre
+ExecStart=/srv/ozaydin-dev/deploy/backup.sh
+Nice=10
+IOSchedulingClass=idle

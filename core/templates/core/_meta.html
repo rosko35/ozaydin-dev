@@ -1,4 +1,27 @@
-{% load site %}<meta name="description" content="{% if page_description %}{{ page_description|striptags|truncatechars:160 }}{% else %}{% ui 'site.description' %}{% endif %}">
-{% if alt_urls %}<link rel="alternate" hreflang="tr" href="{{ site_url }}{{ alt_urls.tr }}">
+{% load seo site %}{% seo_head as seo %}<meta name="description" content="{{ seo.description }}">
+{% if seo.noindex %}<meta name="robots" content="noindex">
+{% else %}<link rel="canonical" href="{{ seo.canonical }}">
+{% endif %}{% if alt_urls %}<link rel="alternate" hreflang="tr" href="{{ site_url }}{{ alt_urls.tr }}">
 <link rel="alternate" hreflang="en" href="{{ site_url }}{{ alt_urls.en }}">
-<link rel="alternate" hreflang="x-default" href="{{ site_url }}{{ alt_urls.tr }}">{% endif %}
+<link rel="alternate" hreflang="x-default" href="{{ site_url }}{{ alt_urls.tr }}">
+{% endif %}<meta property="og:site_name" content="ozaydin.dev">
+<meta property="og:type" content="{{ seo.og_type }}">
+<meta property="og:title" content="{{ seo.title }}">
+<meta property="og:description" content="{{ seo.description }}">
+{% if seo.canonical %}<meta property="og:url" content="{{ seo.canonical }}">
+{% endif %}<meta property="og:image" content="{{ seo.image }}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ seo.image_alt }}">
+<meta property="og:locale" content="{{ seo.locale }}">
+<meta property="og:locale:alternate" content="{{ seo.locale_alt }}">
+{% if seo.og_type == "article" %}{% if seo.published %}<meta property="article:published_time" content="{{ seo.published }}">
+{% endif %}{% if seo.modified %}<meta property="article:modified_time" content="{{ seo.modified }}">
+{% endif %}<meta property="article:author" content="{{ site_url }}{% lurl 'about' %}">
+{% endif %}<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ seo.title }}">
+<meta name="twitter:description" content="{{ seo.description }}">
+<meta name="twitter:image" content="{{ seo.image }}">
+<meta name="twitter:image:alt" content="{{ seo.image_alt }}">
+<script type="application/ld+json">{{ seo.jsonld }}</script>
