@@ -6,6 +6,7 @@ Sunucuda şu ortam değişkenleri ayarlanır:
   DJANGO_SECRET_KEY      uzun, rastgele bir anahtar
   DJANGO_DEBUG           0
   DJANGO_ALLOWED_HOSTS   ozaydin.dev,www.ozaydin.dev
+  DJANGO_DB_NAME         ozaydin (PostgreSQL veritabanı adı)
 """
 
 import os
@@ -57,13 +58,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# Şimdilik SQLite. Sunucuda PostgreSQL'e geçerken burası değişecek.
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# Bilgisayarda SQLite. Sunucuda DJANGO_DB_NAME ayarlıysa PostgreSQL kullanılır.
+# Sunucuda şifre yok: Django, Linux kullanıcısıyla aynı adlı PostgreSQL kullanıcısı olarak
+# yerel soket üzerinden bağlanır (peer authentication).
+if os.environ.get("DJANGO_DB_NAME"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ["DJANGO_DB_NAME"],
+            "CONN_MAX_AGE": 60,
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
