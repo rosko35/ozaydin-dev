@@ -653,8 +653,30 @@
     let history = [];
     try { history = JSON.parse(sessionStorage.getItem(KEY) || '[]'); } catch (e) { history = []; }
     const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify(history.slice(-12))); } catch (e) {} };
+    // Cevaptaki adresleri ve e-postaları tıklanabilir yap. HTML kullanılmaz; her parça ayrı düğüm olarak eklenir.
+    const LINK = /(https?:\/\/[^\s<>"']+|(?:www\.)?(?:ozaydin\.dev|github\.com|linkedin\.com|itch\.io)(?:\/[^\s<>"']*)?|[\w.+-]+@[\w-]+(?:\.[\w-]+)+)/gi;
+    function linkify(p, text) {
+      let last = 0;
+      text.replace(LINK, (m, _g, at) => {
+        let url = m; const tail = (url.match(/[.,;:!?)\]"'»]+$/) || [''])[0];
+        if (tail) url = url.slice(0, -tail.length);
+        p.append(text.slice(last, at));
+        const a = document.createElement('a'); a.textContent = url; a.className = 'link';
+        if (url.includes('@') && !url.includes('/')) a.href = 'mailto:' + url;
+        else {
+          const u = new URL(/^https?:/i.test(url) ? url : 'https://' + url);
+          if (u.hostname.replace(/^www\./, '') === location.hostname.replace(/^www\./, '') || u.hostname === 'ozaydin.dev') a.href = u.pathname + u.search + u.hash;
+          else { a.href = u.href; a.target = '_blank'; a.rel = 'noopener'; }
+        }
+        p.append(a);
+        last = at + url.length;
+        return m;
+      });
+      p.append(text.slice(last));
+    }
     const add = (role, text, cls) => {
-      const p = document.createElement('p'); p.className = 'msg ' + role + (cls ? ' ' + cls : ''); p.textContent = text;
+      const p = document.createElement('p'); p.className = 'msg ' + role + (cls ? ' ' + cls : '');
+      if (role === 'bot' && !cls) linkify(p, text); else p.textContent = text;
       logEl.appendChild(p); logEl.scrollTop = logEl.scrollHeight; return p;
     };
     if (history.length) { const chips = $('.chips', logEl); if (chips) chips.remove(); history.forEach((m) => add(m.role, m.text)); }
