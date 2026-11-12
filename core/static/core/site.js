@@ -564,6 +564,9 @@
     const doc = new DOMParser().parseFromString(html, 'text/html'), next = doc.getElementById('app');
     if (!next) { location.href = url; return; }
     const swap = () => {
+      // Ana sayfadaki kaydırma kilidini (scroll-snap) içerik değişmeden önce kaldır: Safari aksi hâlde
+      // eski kaydırma konumunda kalıp yeni sayfayı ortasından/sonundan açıyor.
+      document.documentElement.classList.remove('snap');
       app.innerHTML = next.innerHTML;
       ['page', 'title', 'altTr', 'altEn'].forEach((k) => { app.dataset[k] = next.dataset[k] || ''; });
       document.title = doc.title;
@@ -571,8 +574,10 @@
       if (desc && cur) cur.content = desc.content;
       if (push) history.pushState({ pjax: true }, '', url);
       const hash = new URL(url, location.href).hash, target = hash && document.getElementById(hash.slice(1));
-      if (target) target.scrollIntoView(); else scrollTo(0, 0);
+      const toTop = () => { document.documentElement.scrollTop = 0; document.body.scrollTop = 0; scrollTo(0, 0); };
+      if (target) target.scrollIntoView(); else toTop();
       initPage(false);
+      if (!target) requestAnimationFrame(() => { if (scrollY !== 0) toTop(); });
       const h = $('h1', app); if (h && h.tabIndex === -1) h.focus({ preventScroll: true });
     };
     await wipe.run(swap);
