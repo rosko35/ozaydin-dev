@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% load site static %}
+{% extends "base.html" %}{% load site %}
 {% block content %}
 <div class="page pad" data-form="c">
   <div class="wrap grid">
@@ -36,7 +36,6 @@
           <div class="links">
             <a href="https://github.com/rosko35" target="_blank" rel="noopener">GitHub ↗</a>
             <a href="https://www.linkedin.com/in/emre-%C3%B6zayd%C4%B1n-b65409270/" target="_blank" rel="noopener">LinkedIn ↗</a>
-            <a href="{% if lang == "en" %}{% static 'core/cv/Emre_Ozaydin_CV_EN.pdf' %}{% else %}{% static 'core/cv/Emre_Ozaydin_CV_TR.pdf' %}{% endif %}" download data-no-pjax>{% ui "cv.link" %}</a>
           </div>
         </div>
       </div>

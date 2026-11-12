@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% load site static %}
+{% extends "base.html" %}{% load site %}
 {% block content %}
 <div class="page pad" data-form="helix">
   <div class="wrap grid">
@@ -11,15 +11,6 @@
         {% else %}
         <p class="lead">Yaşar Üniversitesi'nde bilgisayar programcılığı okudum, şimdi Doğu Akdeniz Üniversitesi'nde <b>bilişim sistemleri ve teknolojileri</b> lisansına devam ediyorum.</p>
         {% endif %}
-        <div class="actions" style="margin-top:24px">
-          {% if lang == "en" %}
-          <a class="btn solid" href="{% static 'core/cv/Emre_Ozaydin_CV_EN.pdf' %}" download="Emre_Ozaydin_CV_EN.pdf" data-no-pjax>{% ui "cv.download" %}</a>
-          <a class="link" href="{% static 'core/cv/Emre_Ozaydin_CV_TR.pdf' %}" download="Emre_Ozaydin_CV_TR.pdf" data-no-pjax>{% ui "cv.other" %}</a>
-          {% else %}
-          <a class="btn solid" href="{% static 'core/cv/Emre_Ozaydin_CV_TR.pdf' %}" download="Emre_Ozaydin_CV_TR.pdf" data-no-pjax>{% ui "cv.download" %}</a>
-          <a class="link" href="{% static 'core/cv/Emre_Ozaydin_CV_EN.pdf' %}" download="Emre_Ozaydin_CV_EN.pdf" data-no-pjax>{% ui "cv.other" %}</a>
-          {% endif %}
-        </div>
       </div>
       {% if lang == "en" %}{% include "core/about/en.html" %}{% else %}{% include "core/about/tr.html" %}{% endif %}
     </div>

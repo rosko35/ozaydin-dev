@@ -195,12 +195,6 @@ STRINGS.update({
     "chat.error": ("Şu an cevap veremedim, birazdan tekrar dener misin?", "I couldn't answer just now; could you try again in a moment?"),
 })
 
-# CV
-STRINGS.update({
-    "cv.download": ("CV indir (PDF)", "Download CV (PDF)"),
-    "cv.other": ("English CV ↗", "Türkçe CV ↗"),
-    "cv.link": ("CV (PDF)", "CV (PDF)"),
-})
 
 # İstatistik
 STRINGS.update({
