@@ -465,9 +465,23 @@
   setInterval(() => { if (!document.hidden) tickClock(); }, 1000);
 
   /* ---------- Manifesto: kaydırdıkça çözülen cümle ---------- */
-  let mf = null, mfChars = [], mfShown = 0;
+  let mf = null, mfChars = [], mfShown = 0, mfPlay = 0;
+  function setMf(n) {
+    if (n === mfShown) return;
+    for (let i = Math.min(n, mfShown); i < Math.max(n, mfShown); i++) mfChars[i].classList.toggle('off', i >= n);
+    mfShown = n;
+  }
+  function playMf() {
+    const from = mfShown, start = performance.now(), dur = 1900, token = ++mfPlay;
+    (function step(now) {
+      if (token !== mfPlay || !mf) return;
+      const t = clamp((now - start) / dur, 0, 1), e = 1 - Math.pow(1 - t, 2);
+      setMf(Math.max(from, Math.round(e * mfChars.length)));
+      if (t < 1) requestAnimationFrame(step); else mfPlay = 0;
+    })(start);
+  }
   function manifesto(root) {
-    mf = $('#mf', root); mfChars = []; mfShown = 0;
+    mf = $('#mf', root); mfChars = []; mfShown = 0; mfPlay = 0;
     if (!mf) return;
     const t = $('#mf-text', mf);
     mfChars = wrapChars(t, t.textContent);
@@ -485,9 +499,17 @@
     pickScene();
     field.vel = Math.min(1.5, field.vel + Math.abs(y - lastY) / 500); lastY = y; if (field.dirty) field.dirty();
     if (!reduce && mf && mfChars.length) {
-      const r = mf.getBoundingClientRect(), p = clamp((innerHeight * 0.35 - r.top) / Math.max(1, r.height - innerHeight * 0.75), 0, 1);
-      const n = Math.round(p * mfChars.length);
-      if (n !== mfShown) { for (let i = Math.min(n, mfShown); i < Math.max(n, mfShown); i++) mfChars[i].classList.toggle('off', i >= n); mfShown = n; }
+      const r = mf.getBoundingClientRect();
+      if (mob.matches) {
+        // Telefonda bölümler tam ekrana oturduğu için kaydırma çok kısa sürer; cümle, bölüm ekrana
+        // yerleşince zamanla (yaklaşık 2 sn) çözülür, bölümden uzaklaşınca yeniden 0/1'e döner.
+        const settled = r.top < innerHeight * 0.3 && r.bottom > innerHeight * 0.7;
+        if (settled && !mfPlay && mfShown < mfChars.length) playMf();
+        else if (!settled && (r.top > innerHeight * 0.85 || r.bottom < innerHeight * 0.15) && (mfShown || mfPlay)) { mfPlay = 0; setMf(0); }
+      } else {
+        const p = clamp((innerHeight * 0.35 - r.top) / Math.max(1, r.height - innerHeight * 0.75), 0, 1);
+        setMf(Math.round(p * mfChars.length));
+      }
     }
   }
   addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(onScroll); } }, { passive: true });
