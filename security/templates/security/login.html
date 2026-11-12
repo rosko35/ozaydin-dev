@@ -1,0 +1,59 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "admin/css/login.css" %}">
+  {{ form.media }}
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+{% block usertools %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+{% if form.errors and not form.non_field_errors %}
+  <p class="errornote">Lütfen aşağıdaki hataları düzelt.</p>
+{% endif %}
+
+{% if form.non_field_errors %}
+  {% for error in form.non_field_errors %}
+    <p class="errornote">{{ error }}</p>
+  {% endfor %}
+{% endif %}
+
+<div id="content-main">
+  {% if user.is_authenticated %}
+    <p class="errornote">
+      {{ username }} olarak giriş yapılmış, ama bu sayfaya erişim yetkin yok
+      {% if two_factor_required %}(iki adımlı doğrulama yapılmamış olabilir){% endif %}.
+      Doğrulama koduyla yeniden giriş yapabilir ya da başka bir hesaba geçebilirsin.
+    </p>
+  {% endif %}
+
+  <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
+    <div class="form-row">
+      {{ form.username.errors }}
+      {{ form.username.label_tag }} {{ form.username }}
+    </div>
+    <div class="form-row">
+      {{ form.password.errors }}
+      {{ form.password.label_tag }} {{ form.password }}
+      <input type="hidden" name="next" value="{{ next }}">
+    </div>
+    {% if two_factor_required %}
+    <div class="form-row">
+      {{ form.otp_token.errors }}
+      {{ form.otp_token.label_tag }} {{ form.otp_token }}
+      <p class="help">Uygulamadaki 6 haneli kod ya da bir yedek kod (abcd-efgh).</p>
+    </div>
+    {% endif %}
+    <div class="submit-row">
+      <input type="submit" value="Giriş yap">
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+{% if two_factor_missing %}
+  <p class="errornote">
+    İki adımlı doğrulama kurulmamış. Yönetici hesabın şu an sadece şifreyle korunuyor.
+    <a href="{% url 'admin:security_2fa' %}"><strong>Şimdi kur</strong></a>
+  </p>
+{% elif two_factor_not_enforced %}
+  <p class="errornote">
+    Doğrulama cihazı kurulu ama girişte henüz zorunlu değil. Sunucuda <code>DJANGO_ADMIN_2FA=1</code> yapıp servisi yeniden başlat.
+    <a href="{% url 'admin:security_2fa' %}">Doğrulama ayarları</a>
+  </p>
+{% endif %}
+{{ block.super }}
+{% endblock %}
