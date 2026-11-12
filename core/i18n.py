@@ -194,3 +194,11 @@ STRINGS.update({
     "chat.busy": ("Asistan bugünlük çok yoğun. İletişim formundan Emre'ye doğrudan yazabilirsin.", "The assistant is busy for today. You can write to Emre directly via the contact form."),
     "chat.error": ("Şu an cevap veremedim, birazdan tekrar dener misin?", "I couldn't answer just now; could you try again in a moment?"),
 })
+
+# İstatistik
+STRINGS.update({
+    "stats.note": (
+        "Ziyaretçi sayısı çerezsiz ve kişisel veri tutmadan, sadece sayfa bazında sayılır. “Takip edilmeyi reddet” (DNT) ayarın açıksa hiç sayılmazsın.",
+        "Visits are counted without cookies or personal data, per page only. If your Do Not Track setting is on, you are not counted at all.",
+    ),
+})

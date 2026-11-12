@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "blog",
     "contact",
     "chat",
+    "stats",
 ]
 
 MIDDLEWARE = [
@@ -47,6 +48,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "stats.middleware.CountPageView",
 ]
 
 ROOT_URLCONF = "config.urls"
