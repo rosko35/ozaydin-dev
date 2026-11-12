@@ -142,6 +142,9 @@ EMAIL_HOST_USER = os.environ.get("DJANGO_EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("DJANGO_EMAIL_HOST_PASSWORD", "")
 EMAIL_TIMEOUT = 10
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "noreply@ozaydin.dev"
+# Google Search Console doğrulama kodu (HTML etiketi yöntemi; sadece content="..." içindeki değer).
+GOOGLE_SITE_VERIFICATION = os.environ.get("DJANGO_GOOGLE_VERIFICATION", "")
+
 # Sitedeki sohbet asistanı. Anahtar yoksa düğme hiç görünmez.
 CHAT_PROVIDER = os.environ.get("DJANGO_CHAT_PROVIDER", "gemini")
 CHAT_API_KEY = os.environ.get("DJANGO_CHAT_API_KEY", "")

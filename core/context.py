@@ -20,5 +20,6 @@ def site(request):
         "alt_urls": alt,
         "site_url": settings.SITE_URL.rstrip("/"),
         "chat_enabled": bool(settings.CHAT_API_KEY),
+        "google_verification": settings.GOOGLE_SITE_VERIFICATION,
         **seo.context(request),  # og_image, canonical_url
     }

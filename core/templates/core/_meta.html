@@ -25,3 +25,5 @@
 <meta name="twitter:image" content="{{ seo.image }}">
 <meta name="twitter:image:alt" content="{{ seo.image_alt }}">
 <script type="application/ld+json">{{ seo.jsonld }}</script>
+
+{% if google_verification and page_key == "home" %}<meta name="google-site-verification" content="{{ google_verification }}">{% endif %}
