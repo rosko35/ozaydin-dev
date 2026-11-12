@@ -10,7 +10,7 @@ Bu site, kiraladığım küçük bir sunucuda çalışıyor. Hazır bir barınd�
 
 ## Sunucu
 
-DeHost'tan 2 GB RAM'li bir VDS aldım, işletim sistemi olarak Ubuntu 24.04 seçtim. İlk iş güvenlik oldu: kendime `emre` adında bir kullanıcı açtım, bilgisayarımdaki SSH anahtarını ekledim, sonra root girişini ve şifreyle girişi kapattım. Artık sunucuya sadece anahtarla girilebiliyor. Bu arada eski anahtarımın parolasını unuttuğum için yeni bir anahtar oluşturmam gerekti; parolayı güvenli bir yere not etmek de kurulumun parçasıymış.
+DeHost'tan 2 GB RAM'li bir VDS aldım, işletim sistemi olarak Ubuntu 24.04 seçtim. İlk iş güvenlik oldu: kendime `emre` adında bir kullanıcı açtım, bilgisayarımdaki SSH anahtarını ekledim, sonra root girişini ve şifreyle girişi kapattım. Artık sunucuya sadece anahtarla girilebiliyor.
 
 Güvenlik duvarı için UFW kullandım. Dışarıya açık üç şey var: SSH, 80 ve 443.
 
@@ -58,7 +58,7 @@ This site runs on a small server I rent. Instead of a ready-made hosting panel, 
 
 ## The server
 
-I got a VDS with 2 GB of RAM from DeHost and chose Ubuntu 24.04. Security came first: I created a user called `emre`, added the SSH key from my computer, then turned off root login and password login. The server now only accepts key-based logins. Along the way I forgot the passphrase of my old key and had to create a new one, so writing the passphrase down somewhere safe turned out to be part of the setup too.
+I got a VDS with 2 GB of RAM from DeHost and chose Ubuntu 24.04. Security came first: I created a user called `emre`, added the SSH key from my computer, then turned off root login and password login. The server now only accepts key-based logins.
 
 For the firewall I used UFW. Only three things are open: SSH, 80 and 443.
 

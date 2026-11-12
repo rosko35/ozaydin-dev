@@ -29,7 +29,7 @@ def not_reserved(value):
 class Tag(models.Model):
     name_tr = models.CharField("ad (TR)", max_length=40)
     name_en = models.CharField("ad (EN)", max_length=40, blank=True)
-    slug = models.SlugField("adres", unique=True, help_text="Adreste görünür: ozaydin.dev/blog/etiket/<adres>/")
+    slug = models.SlugField("adres", unique=True, help_text="Adreste görünür: ozaydin.dev/blog/etiket/etiketin-adresi/")
 
     class Meta:
         ordering = ["name_tr"]
@@ -55,7 +55,7 @@ class Post(models.Model):
 
     title_tr = models.CharField("başlık (TR)", max_length=160)
     title_en = models.CharField("başlık (EN)", max_length=160, blank=True)
-    slug = models.SlugField("adres", max_length=160, unique=True, validators=[not_reserved], help_text="Adreste görünür: ozaydin.dev/blog/<adres>/")
+    slug = models.SlugField("adres", max_length=160, unique=True, validators=[not_reserved], help_text="Adreste görünür: ozaydin.dev/blog/yazinin-adresi/")
     summary_tr = models.TextField("özet (TR)", help_text="Listede, sayfanın başında ve arama sonuçlarında görünen bir iki cümle.")
     summary_en = models.TextField("özet (EN)", blank=True)
     body_tr = models.TextField("gövde (TR)", help_text=MD_HELP)
@@ -76,7 +76,7 @@ class Post(models.Model):
         "yayın tarihi", null=True, blank=True,
         help_text="Boş bırakıp “Yayında” seçersen kaydettiğin an yazılır. İleri bir tarih verirsen yazı o zaman görünür.",
     )
-    updated = models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField("güncellendi", auto_now=True)
     related_project = models.ForeignKey(
         "projects.Project", verbose_name="ilgili proje", null=True, blank=True, on_delete=models.SET_NULL, related_name="posts",
     )

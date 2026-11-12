@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 (
                     "slug",
                     models.SlugField(
-                        help_text="Adreste görünür: ozaydin.dev/blog/etiket/<adres>/",
+                        help_text="Adreste görünür: ozaydin.dev/blog/etiket/etiketin-adresi/",
                         unique=True,
                         verbose_name="adres",
                     ),
@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
                 (
                     "slug",
                     models.SlugField(
-                        help_text="Adreste görünür: ozaydin.dev/blog/<adres>/",
+                        help_text="Adreste görünür: ozaydin.dev/blog/yazinin-adresi/",
                         max_length=160,
                         unique=True,
                         validators=[blog.models.not_reserved],
@@ -130,7 +130,7 @@ class Migration(migrations.Migration):
                         verbose_name="yayın tarihi",
                     ),
                 ),
-                ("updated", models.DateTimeField(auto_now=True)),
+                ("updated", models.DateTimeField(auto_now=True, verbose_name="güncellendi")),
                 (
                     "related_project",
                     models.ForeignKey(

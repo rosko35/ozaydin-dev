@@ -64,7 +64,7 @@ class Migration(migrations.Migration):
                 (
                     "slug",
                     models.SlugField(
-                        help_text="Adreste görünür: ozaydin.dev/projeler/<adres>/",
+                        help_text="Adreste görünür: ozaydin.dev/projeler/projenin-adresi/",
                         unique=True,
                         verbose_name="adres",
                     ),
@@ -173,7 +173,7 @@ class Migration(migrations.Migration):
                     "is_published",
                     models.BooleanField(default=True, verbose_name="yayında"),
                 ),
-                ("updated", models.DateTimeField(auto_now=True)),
+                ("updated", models.DateTimeField(auto_now=True, verbose_name="güncellendi")),
                 (
                     "categories",
                     models.ManyToManyField(

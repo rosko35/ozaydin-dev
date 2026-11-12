@@ -26,7 +26,7 @@ class Project(models.Model):
         "numara", unique=True, help_text="Sıra numarası. Sitede ikilik olarak görünür: 1 → 001, 2 → 010, 3 → 011."
     )
     title = models.CharField("ad", max_length=80)
-    slug = models.SlugField("adres", unique=True, help_text="Adreste görünür: ozaydin.dev/projeler/<adres>/")
+    slug = models.SlugField("adres", unique=True, help_text="Adreste görünür: ozaydin.dev/projeler/projenin-adresi/")
     year = models.PositiveSmallIntegerField("yıl", null=True, blank=True)
     categories = models.ManyToManyField(Category, verbose_name="alanlar", blank=True, related_name="projects")
     stack = models.CharField("araçlar", max_length=120, blank=True, help_text="Örnek: Unity · C#")
@@ -52,7 +52,7 @@ class Project(models.Model):
     )
     featured = models.BooleanField("ana sayfada göster", default=True)
     is_published = models.BooleanField("yayında", default=True)
-    updated = models.DateTimeField(auto_now=True)
+    updated = models.DateTimeField("güncellendi", auto_now=True)
 
     class Meta:
         ordering = ["number"]
