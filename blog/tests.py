@@ -227,7 +227,7 @@ class ModelTests(TestCase):
         # 0002_ilk_yazi migration'ı: taslak, iki dilli, etiketli
         p = Post.objects.get(slug="ozaydin-devi-nasil-yayina-aldim")
         self.assertEqual(p.status, Post.Status.DRAFT)
-        self.assertIn('<div class="hl">', p.body_html_tr)
+        self.assertIn('<h2 id="tasarim">', p.body_html_tr)
         self.assertEqual(sorted(p.tags.values_list("slug", flat=True)), ["django", "sunucu"])
 
 
