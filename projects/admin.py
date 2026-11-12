@@ -28,6 +28,7 @@ class ProjectAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {"fields": ("number", "title", "slug", "year", "categories", "stack", "featured", "is_published")}),
         ("Kısa bilgiler", {"fields": (("role_tr", "role_en"), ("duration_tr", "duration_en"), "repo_url", "live_url", "cover")}),
+        ("Demo videosu", {"fields": ("video", "video_poster")}),
         ("Türkçe metin", {"fields": ("summary_tr", "problem_tr", "did_tr", "result_tr", "flow_tr")}),
         ("İngilizce metin", {"fields": ("summary_en", "problem_en", "did_en", "result_en", "flow_en"),
                              "description": "Boş bırakılan alanlarda İngilizce sayfada Türkçesi görünür."}),

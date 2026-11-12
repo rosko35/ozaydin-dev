@@ -19,7 +19,15 @@
       </dl>
     </div>
     <div data-form="floor">
-      {% if project.cover %}
+      {% if project.video %}
+      <figure class="panel glass rv video-panel">
+        <video controls playsinline preload="metadata"{% if project.video_poster %} poster="{{ project.video_poster.url }}"{% elif project.cover %} poster="{{ project.cover.url }}"{% endif %} aria-label="{{ project.title }} · {% ui 'project.demo' %}">
+          <source src="{{ project.video.url }}" type="video/{% if project.video.name|slice:'-4:' == 'webm' %}webm{% else %}mp4{% endif %}">
+          <p>{% ui "project.video_fallback" %}<a class="link" href="{{ project.video.url }}" download>{% ui "project.video_download" %}</a></p>
+        </video>
+        <figcaption class="label">{% ui "project.demo" %}</figcaption>
+      </figure>
+      {% elif project.cover %}
       <figure class="panel glass rv cover"><img src="{{ project.cover.url }}" alt="{{ project.title }}" loading="eager"></figure>
       {% else %}
       <figure class="panel glass rv tape-panel">{% tape project.title %}

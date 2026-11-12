@@ -1,3 +1,4 @@
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.urls import reverse
 
@@ -50,6 +51,16 @@ class Project(models.Model):
         "kapak görseli", upload_to="projects/covers/", blank=True,
         help_text="İsteğe bağlı. Yoksa projenin adından üretilen bit şeridi kullanılır.",
     )
+    video = models.FileField(
+        "demo videosu", upload_to="projects/videos/", blank=True,
+        validators=[FileExtensionValidator(["mp4", "webm"])],
+        help_text="İsteğe bağlı. MP4 (H.264) ya da WebM, en fazla 200 MB; 50 MB altı önerilir. "
+                  "Varsa proje sayfasının en üstünde oynatıcı olarak görünür.",
+    )
+    video_poster = models.ImageField(
+        "video kapak resmi", upload_to="projects/videos/", blank=True,
+        help_text="İsteğe bağlı. Video oynatılmadan önce görünen kare. Boşsa kapak görseli kullanılır.",
+    )
     featured = models.BooleanField("ana sayfada göster", default=True)
     is_published = models.BooleanField("yayında", default=True)
     updated = models.DateTimeField("güncellendi", auto_now=True)
@@ -74,6 +85,9 @@ class Project(models.Model):
         if self.cover and not getattr(self.cover, "_committed", True):
             content, _ = to_webp(self.cover, 2000)
             self.cover.save(content.name, content, save=False)
+        if self.video_poster and not getattr(self.video_poster, "_committed", True):
+            content, _ = to_webp(self.video_poster, 1920)
+            self.video_poster.save(content.name, content, save=False)
         super().save(*args, **kwargs)
 
 

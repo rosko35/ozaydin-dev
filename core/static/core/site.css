@@ -380,7 +380,10 @@ body { margin: 0; }
 /* Proje detayı */
 .pd-title { font-size: clamp(40px, 7.2vw, 120px); max-width: 12ch; }
 .pd-lead { max-width: 32ch; }
-.panel.cover, .panel.tape-panel { margin: 0 0 64px; }
+.panel.cover, .panel.tape-panel, .panel.video-panel { margin: 0 0 64px; }
+.panel.video-panel { padding: 8px; display: grid; gap: 16px; }
+.panel.video-panel video { display: block; width: 100%; height: auto; max-height: 80svh; border-radius: 16px; background: var(--bg-0); }
+.panel.video-panel figcaption { padding: 0 16px 8px; }
 .panel.cover { padding: 8px; }
 .panel.cover img { display: block; width: 100%; height: auto; border-radius: 16px; }
 .pd-sec .body .did { display: grid; gap: 16px; }
