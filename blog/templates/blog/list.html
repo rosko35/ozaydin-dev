@@ -12,7 +12,6 @@
     <nav class="filters blog-tags" aria-label="{% ui 'blog.tags' %}">
       <a class="tog" href="{% lurl 'blog' %}"{% if not tag %} aria-current="page"{% endif %}><i class="bit" aria-hidden="true"></i>{% ui "blog.all" %}</a>
       {% for tg in tags %}<a class="tog" href="{% lurl 'blog_tag' slug=tg.slug %}"{% if tag and tag.pk == tg.pk %} aria-current="page"{% endif %}><i class="bit" aria-hidden="true"></i>#{{ tg|t:"name" }}</a>{% endfor %}
-      <a class="link rss" href="{% lurl 'blog_feed' %}">{% ui "blog.rss" %} <span class="ar" aria-hidden="true">↗</span></a>
     </nav>
     {% endif %}
 
