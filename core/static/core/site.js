@@ -645,6 +645,57 @@
     document.addEventListener('pointerout', (e) => { const b = e.target.closest && e.target.closest('.btn'); if (b && !b.contains(e.relatedTarget)) { b.style.transition = ''; b.style.transform = ''; } });
   }
 
+  /* ---------- Sohbet asistanı ---------- */
+  (function chatbot() {
+    const box = $('#chat'), fab = $('#chat-fab'); if (!box || !fab) return;
+    const logEl = $('#chat-log', box), form = $('#chat-form', box), input = $('#chat-in', box), send = $('[type=submit]', form);
+    const KEY = 'ozd-chat-' + box.dataset.lang;
+    let history = [];
+    try { history = JSON.parse(sessionStorage.getItem(KEY) || '[]'); } catch (e) { history = []; }
+    const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify(history.slice(-12))); } catch (e) {} };
+    const add = (role, text, cls) => {
+      const p = document.createElement('p'); p.className = 'msg ' + role + (cls ? ' ' + cls : ''); p.textContent = text;
+      logEl.appendChild(p); logEl.scrollTop = logEl.scrollHeight; return p;
+    };
+    if (history.length) { const chips = $('.chips', logEl); if (chips) chips.remove(); history.forEach((m) => add(m.role, m.text)); }
+    const open = () => {
+      box.hidden = false; fab.setAttribute('aria-expanded', 'true');
+      setTimeout(() => input.focus({ preventScroll: true }), 50); logEl.scrollTop = logEl.scrollHeight;
+    };
+    const close = () => { box.hidden = true; fab.setAttribute('aria-expanded', 'false'); fab.focus({ preventScroll: true }); };
+    fab.addEventListener('click', open);
+    $('.chat-x', box).addEventListener('click', close);
+    addEventListener('keydown', (e) => { if (e.key === 'Escape' && !box.hidden) close(); });
+    const grow = () => { input.style.height = 'auto'; input.style.height = Math.min(120, input.scrollHeight) + 'px'; };
+    input.addEventListener('input', grow);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
+    let busy = false;
+    async function ask(text) {
+      text = text.trim(); if (!text || busy) return;
+      busy = true; send.disabled = true;
+      const chips = $('.chips', logEl); if (chips) chips.remove();
+      add('user', text); input.value = ''; grow();
+      const wait = add('bot', box.dataset.thinking, 'wait');
+      let k = 0; const tick = setInterval(() => { wait.textContent = box.dataset.thinking + ' ' + Array.from({ length: 6 }, () => ((Math.random() * 2) | 0)).join(''); k++; }, 160);
+      let data = {};
+      try {
+        const r = await fetch('/api/chat/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+          body: JSON.stringify({ message: text, history: history.slice(-6), lang: box.dataset.lang }) });
+        data = await r.json().catch(() => ({}));
+      } catch (e) { data = {}; }
+      clearInterval(tick); wait.remove();
+      if (data.ok) {
+        add('bot', data.answer);
+        history.push({ role: 'user', text }, { role: 'bot', text: data.answer }); save();
+      } else {
+        add('bot', data.message || box.dataset.error, 'err');
+      }
+      busy = false; send.disabled = false; input.focus({ preventScroll: true });
+    }
+    form.addEventListener('submit', (e) => { e.preventDefault(); ask(input.value); });
+    logEl.addEventListener('click', (e) => { const c = e.target.closest('.chip'); if (c) ask(c.textContent); });
+  })();
+
   /* ---------- Başlat ---------- */
   initPage(true);
   // 3B alan sayfa açıldıktan sonra, tarayıcı boşa çıkınca yüklenir: ilk görüntü ve etkileşim beklemez.

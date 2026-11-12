@@ -173,3 +173,24 @@ STRINGS.update({
     "og.kind_project": ("PROJE", "PROJECT"),
     "og.kind_post": ("YAZI", "POST"),
 })
+
+# Sohbet asistanı
+STRINGS.update({
+    "chat.open": ("Emre hakkında sor", "Ask about Emre"),
+    "chat.button": ("Sor", "Ask"),
+    "chat.title": ("Emre hakkında sor", "Ask about Emre"),
+    "chat.note": ("Yapay zekâ yanıtlıyor; hata yapabilir. Kişisel bilgi paylaşma.", "Answered by AI; it can make mistakes. Don't share personal info."),
+    "chat.close": ("Kapat", "Close"),
+    "chat.placeholder": ("Bir soru yaz…", "Type a question…"),
+    "chat.send": ("Gönder", "Send"),
+    "chat.hello": ("Merhaba! Emre'nin eğitimi, projeleri ya da yetenekleri hakkında ne merak ediyorsun?", "Hi! What would you like to know about Emre's education, projects or skills?"),
+    "chat.s1": ("Hangi projeleri yaptı?", "What has he built?"),
+    "chat.s2": ("Hangi teknolojileri biliyor?", "Which technologies does he know?"),
+    "chat.s3": ("Staja açık mı?", "Is he open to an internship?"),
+    "chat.thinking": ("Düşünüyor", "Thinking"),
+    "chat.off": ("Asistan şu an kapalı.", "The assistant is off right now."),
+    "chat.empty": ("Önce bir soru yaz.", "Type a question first."),
+    "chat.limit": ("Çok fazla soru sordun, biraz sonra tekrar dene. Acil bir şeyse iletişim formunu kullanabilirsin.", "You've asked a lot; please try again later. For anything urgent, use the contact form."),
+    "chat.busy": ("Asistan bugünlük çok yoğun. İletişim formundan Emre'ye doğrudan yazabilirsin.", "The assistant is busy for today. You can write to Emre directly via the contact form."),
+    "chat.error": ("Şu an cevap veremedim, birazdan tekrar dener misin?", "I couldn't answer just now; could you try again in a moment?"),
+})

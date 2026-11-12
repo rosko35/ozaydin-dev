@@ -60,6 +60,24 @@
   <a href="{% lurl 'contact' %}" data-nav="contact"><i class="tb" aria-hidden="true"></i>{% ui "nav.contact" %}</a>
 </nav>
 
+{% if chat_enabled %}
+<button class="chat-fab glass" id="chat-fab" type="button" aria-expanded="false" aria-controls="chat" aria-label="{% ui 'chat.open' %}"><span class="mono" aria-hidden="true">01</span><span>{% ui "chat.button" %}</span></button>
+<section class="chat glass" id="chat" hidden aria-labelledby="chat-title" data-lang="{{ lang }}" data-thinking="{% ui 'chat.thinking' %}" data-error="{% ui 'chat.error' %}">
+  <header class="chat-head">
+    <div><h2 id="chat-title">{% ui "chat.title" %}</h2><p class="chat-note">{% ui "chat.note" %}</p></div>
+    <button class="chat-x" type="button" aria-label="{% ui 'chat.close' %}">×</button>
+  </header>
+  <div class="chat-log" id="chat-log" role="log" aria-live="polite">
+    <p class="msg bot">{% ui "chat.hello" %}</p>
+    <div class="chips"><button type="button" class="chip">{% ui "chat.s1" %}</button><button type="button" class="chip">{% ui "chat.s2" %}</button><button type="button" class="chip">{% ui "chat.s3" %}</button></div>
+  </div>
+  <form class="chat-form" id="chat-form">
+    <label class="sr" for="chat-in">{% ui "chat.placeholder" %}</label>
+    <textarea id="chat-in" rows="1" maxlength="500" placeholder="{% ui 'chat.placeholder' %}" autocomplete="off"></textarea>
+    <button class="btn solid" type="submit" aria-label="{% ui 'chat.send' %}">→</button>
+  </form>
+</section>
+{% endif %}
 <canvas id="wipe" aria-hidden="true"></canvas>
 <div id="cur" aria-hidden="true">0</div>
 <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="{% ui 'project.gallery' %}">

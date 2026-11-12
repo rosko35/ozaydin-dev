@@ -2,12 +2,15 @@
 from django.contrib.sitemaps.views import sitemap
 from django.urls import path, re_path
 
+from chat import views as chat_views
+
 from . import seo_views
 from .sitemaps import SITEMAPS
 
 LANG = r"(?P<lang>tr|en)"
 
 urlpatterns = [
+    path("api/chat/", chat_views.ask, name="chat_api"),
     path("robots.txt", seo_views.robots_txt, name="robots_txt"),
     path("sitemap.xml", sitemap, {"sitemaps": SITEMAPS}, name="sitemap"),
     path("site.webmanifest", seo_views.webmanifest, name="webmanifest"),

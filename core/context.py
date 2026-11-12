@@ -19,5 +19,6 @@ def site(request):
         "other_lang": "en" if lang() == "tr" else "tr",
         "alt_urls": alt,
         "site_url": settings.SITE_URL.rstrip("/"),
+        "chat_enabled": bool(settings.CHAT_API_KEY),
         **seo.context(request),  # og_image, canonical_url
     }

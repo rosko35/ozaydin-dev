@@ -10,6 +10,7 @@ Sunucuda şu ortam değişkenleri ayarlanır:
   DJANGO_ADMIN_URL       yönetim paneli adresi (varsayılan: admin/)
   DJANGO_EMAIL_HOST_USER / DJANGO_EMAIL_HOST_PASSWORD   iletişim formu bildirimi (Gmail uygulama şifresi)
   DJANGO_CONTACT_TO      mesajların gideceği adres
+  DJANGO_CHAT_PROVIDER / DJANGO_CHAT_API_KEY / DJANGO_CHAT_MODEL   sohbet asistanı (gemini ya da anthropic)
 """
 
 import os
@@ -34,6 +35,7 @@ INSTALLED_APPS = [
     "projects",
     "blog",
     "contact",
+    "chat",
 ]
 
 MIDDLEWARE = [
@@ -128,6 +130,10 @@ EMAIL_HOST_USER = os.environ.get("DJANGO_EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("DJANGO_EMAIL_HOST_PASSWORD", "")
 EMAIL_TIMEOUT = 10
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "noreply@ozaydin.dev"
+# Sitedeki sohbet asistanı. Anahtar yoksa düğme hiç görünmez.
+CHAT_PROVIDER = os.environ.get("DJANGO_CHAT_PROVIDER", "gemini")
+CHAT_API_KEY = os.environ.get("DJANGO_CHAT_API_KEY", "")
+CHAT_MODEL = os.environ.get("DJANGO_CHAT_MODEL", "gemini-flash-lite-latest")
 CONTACT_TO = os.environ.get("DJANGO_CONTACT_TO", "emreozaydn60@gmail.com")
 if not EMAIL_HOST_USER:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
