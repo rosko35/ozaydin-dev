@@ -16,18 +16,15 @@ sudo cp /etc/nginx/sites-available/ozaydin-dev ~/nginx-ozaydin-dev.yedek   # şu
 
 ## 1. Kodu al
 
-GitHub'da `gece-gelistirme` dalını main'e birleştirdiysen:
+12 Kasım'da GitHub'daki geçmiş yeniden yazıldı (bütün commit'ler Emre adına). Bu yüzden sunucudaki kopya
+bir kereye mahsus `git pull` ile değil, şu iki komutla güncellenir:
 
 ```bash
-git pull --ff-only                                  # main'deki son hâli çek
+git fetch origin                                    # GitHub'daki yeni geçmişi indir
+git reset --hard origin/main                        # sunucudaki kodu GitHub'daki main ile birebir aynı yap
 ```
 
-Birleştirmeden doğrudan dalı denemek istersen:
-
-```bash
-git fetch                                           # GitHub'daki yeni dalları indir
-git checkout gece-gelistirme                        # o dala geç
-```
+Sonraki güncellemelerde yine `deploy/deploy.sh` (ya da `git pull`) yeterli.
 
 ## 2. Paketler, veritabanı, statik dosyalar
 
