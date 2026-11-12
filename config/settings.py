@@ -8,6 +8,7 @@ Sunucuda şu ortam değişkenleri ayarlanır:
   DJANGO_ALLOWED_HOSTS   ozaydin.dev,www.ozaydin.dev
   DJANGO_DB_NAME         ozaydin (PostgreSQL veritabanı adı)
   DJANGO_ADMIN_URL       yönetim paneli adresi (varsayılan: admin/)
+  DJANGO_ADMIN_2FA       1 = yönetici girişinde telefondaki doğrulama kodu zorunlu (varsayılan 0; önce <adres>2fa/ ile cihazı kur)
   DJANGO_EMAIL_HOST_USER / DJANGO_EMAIL_HOST_PASSWORD   iletişim formu bildirimi (Gmail uygulama şifresi)
   DJANGO_CONTACT_TO      mesajların gideceği adres
   DJANGO_CHAT_PROVIDER / DJANGO_CHAT_API_KEY / DJANGO_CHAT_MODEL   sohbet asistanı (gemini ya da anthropic)
@@ -24,13 +25,17 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").sp
 CSRF_TRUSTED_ORIGINS = ["https://ozaydin.dev", "https://www.ozaydin.dev"]
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    "security",  # admin şablonlarını (index) geçersiz kılabilsin diye admin'den ÖNCE
+    "security.adminconfig.SecureAdminConfig",  # django.contrib.admin yerine: iki adımlı doğrulamalı admin sitesi
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
+    "django_otp",
+    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_static",
     "core",
     "projects",
     "blog",
@@ -45,6 +50,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -121,6 +127,10 @@ if not DEBUG:
     }
 SITE_URL = os.environ.get("DJANGO_SITE_URL", "https://ozaydin.dev")
 ADMIN_URL = os.environ.get("DJANGO_ADMIN_URL", "admin/")
+# İki adımlı doğrulama zorunluluğu: "0" = zorunlu değil (varsayılan; giriş normal, <ADMIN_URL>2fa/ kurulum sayfası çalışır),
+# "1" = giriş için telefondaki kod şart. Önce cihazı kur, sonra "1" yap (yoksa kilitlenirsin).
+ADMIN_2FA = os.environ.get("DJANGO_ADMIN_2FA", "0") == "1"
+OTP_TOTP_ISSUER = "ozaydin.dev"
 
 # E-posta: ayarlı değilse mesajlar sadece admin'e kaydedilir, e-posta gönderilmez.
 EMAIL_HOST = os.environ.get("DJANGO_EMAIL_HOST", "smtp.gmail.com")

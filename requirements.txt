@@ -7,3 +7,5 @@ psycopg[binary]==3.3.8
 Pillow==13.0.0
 Markdown==3.11.3
 Pygments==2.21.0
+django-otp==1.7.5
+qrcode==8.2

@@ -1,0 +1,94 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "security/2fa.css" %}">
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Ana sayfa</a> &rsaquo; İki adımlı doğrulama
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" class="tfa">
+
+{% if state == "codes" %}
+  {% if just_enabled %}
+    <p class="tfa-ok">İki adımlı doğrulama cihazı kuruldu.</p>
+  {% endif %}
+  <div class="module tfa-box">
+    <h2>Yedek kodlar</h2>
+    <p>Telefonunu kaybedersen bu kodlardan biriyle giriş yapabilirsin. Her kod <strong>bir kere</strong> işe yarar.
+       Bu kodlar <strong>bir daha gösterilmeyecek</strong>: şimdi bir parola yöneticisine kaydet ya da yazdır.</p>
+    <ul class="tfa-codes" aria-label="Yedek kodlar">
+      {% for code in codes %}<li>{{ code }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% if just_enabled and not enforced %}
+    <p class="tfa-note">Sıradaki adım: sunucuda <code>DJANGO_ADMIN_2FA=1</code> yapıp servisi yeniden başlat; o zamana kadar doğrulama zorunlu değil.</p>
+  {% endif %}
+  <p><a href="{% url 'admin:security_2fa' %}">Tamam, kaydettim</a></p>
+
+{% elif state == "setup" %}
+  <div class="module tfa-box">
+    <h2>Cihazını kur</h2>
+    <ol class="tfa-steps">
+      <li>Telefonuna <strong>Google Authenticator</strong> ya da <strong>Microsoft Authenticator</strong> kur.</li>
+      <li>Uygulamada <em>hesap ekle &rarr; QR kodu tara</em> de ve aşağıdaki kodu okut.</li>
+      <li>Uygulamada görünen 6 haneli kodu aşağıya yaz.</li>
+    </ol>
+    <div class="tfa-qr"><img src="data:image/svg+xml;base64,{{ qr }}" alt="Kimlik doğrulama uygulaması için QR kodu" width="220" height="220"></div>
+    <p>QR kodu okutamıyorsan anahtarı elle gir (hesap türü: zamana dayalı):</p>
+    <p><code class="tfa-secret">{{ secret }}</code></p>
+  </div>
+
+  <form method="post" class="module tfa-box">{% csrf_token %}
+    <input type="hidden" name="action" value="confirm">
+    {% if error %}<p class="errornote">{{ error }}</p>{% endif %}
+    <div class="form-row">
+      <label for="id_token" class="required">6 haneli kod</label>
+      <input type="text" name="token" id="id_token" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>
+    </div>
+    <div class="submit-row"><input type="submit" value="Doğrula ve kur" class="default"></div>
+  </form>
+
+{% else %}
+  <div class="module tfa-box">
+    <h2>Durum</h2>
+    <p class="tfa-ok">Cihaz kurulu.</p>
+    <p>Kalan yedek kod: <strong>{{ backup_left }}</strong></p>
+    <p>{% if enforced %}Girişte doğrulama kodu <strong>zorunlu</strong>.{% else %}Girişte doğrulama kodu şu an <strong>zorunlu değil</strong> (sunucuda <code>DJANGO_ADMIN_2FA=1</code> yapınca zorunlu olur).{% endif %}</p>
+  </div>
+
+  <form method="post" class="module tfa-box">{% csrf_token %}
+    <h2>Yedek kodları yenile</h2>
+    <p>Eski kodlar geçersiz olur, 10 yenisi üretilir. Şifreni onayla.</p>
+    <input type="hidden" name="action" value="new_codes">
+    <div class="form-row">
+      <label for="id_password_codes" class="required">Şifre</label>
+      <input type="password" name="password" id="id_password_codes" autocomplete="current-password" required>
+    </div>
+    <div class="submit-row"><input type="submit" value="Yedek kodları yenile"></div>
+  </form>
+
+  <form method="post" class="module tfa-box">{% csrf_token %}
+    <h2>Cihazı sıfırla</h2>
+    {% if enforced %}
+      <p>Doğrulama zorunluyken cihaz buradan sıfırlanamaz (kilitlenirsin). Telefon değiştirecekse sunucuda önce <code>DJANGO_ADMIN_2FA=0</code> yap.</p>
+    {% else %}
+      <p>Mevcut cihaz ve yedek kodlar silinir; sonra yenisini kurarsın. Şifreni onayla.</p>
+      <input type="hidden" name="action" value="reset">
+      <div class="form-row">
+        <label for="id_password_reset" class="required">Şifre</label>
+        <input type="password" name="password" id="id_password_reset" autocomplete="current-password" required>
+      </div>
+      <div class="submit-row"><input type="submit" value="Cihazı sıfırla"></div>
+    {% endif %}
+  </form>
+{% endif %}
+
+</div>
+{% endblock %}
