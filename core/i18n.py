@@ -201,3 +201,11 @@ STRINGS.update({
     "cv.other": ("English CV ↗", "Türkçe CV ↗"),
     "cv.link": ("CV (PDF)", "CV (PDF)"),
 })
+
+# İstatistik
+STRINGS.update({
+    "stats.note": (
+        "Ziyaretçi sayısı çerezsiz ve kişisel veri tutmadan, sadece sayfa bazında sayılır. “Takip edilmeyi reddet” (DNT) ayarın açıksa hiç sayılmazsın.",
+        "Visits are counted without cookies or personal data, per page only. If your Do Not Track setting is on, you are not counted at all.",
+    ),
+})

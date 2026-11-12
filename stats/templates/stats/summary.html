@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Ana sayfa</a> &rsaquo; İstatistik</div>
+{% endblock %}
+{% block content %}
+<p>Son {{ days }} gün. Çerezsiz sayım; DNT / GPC gönderenler ve botlar sayılmaz.</p>
+<div style="display:flex;gap:32px;margin:16px 0">
+  <div><strong style="font-size:28px">{{ total_views }}</strong><br>görüntüleme</div>
+  <div><strong style="font-size:28px">{{ total_unique }}</strong><br>benzersiz ziyaretçi</div>
+  <div><strong style="font-size:28px">%{{ tr_share }} / %{{ en_share }}</strong><br>TR / EN ({{ tr }} / {{ en }})</div>
+</div>
+<div style="max-width:720px">{{ chart }}</div>
+<div style="display:flex;gap:32px;flex-wrap:wrap;margin-top:24px">
+  <div>
+    <h2>En çok görüntülenen sayfalar</h2>
+    <table>
+      <thead><tr><th>Sayfa</th><th>Görüntüleme</th></tr></thead>
+      {% for r in top_pages %}<tr><td>{{ r.path }}</td><td>{{ r.v }}</td></tr>{% empty %}<tr><td colspan="2">Henüz veri yok.</td></tr>{% endfor %}
+    </table>
+  </div>
+  <div>
+    <h2>Yönlendiren siteler</h2>
+    <table>
+      <thead><tr><th>Site</th><th>Ziyaret</th></tr></thead>
+      {% for r in referrers %}<tr><td>{{ r.host }}</td><td>{{ r.c }}</td></tr>{% empty %}<tr><td colspan="2">Henüz veri yok.</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+<p><a href="{% url 'admin:stats_dailypage_changelist' %}">Günlük kayıtlar</a></p>
+{% endblock %}
