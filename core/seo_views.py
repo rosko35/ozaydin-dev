@@ -115,8 +115,8 @@ def webmanifest(request):
         "start_url": "/",
         "scope": "/",
         "display": "browser",
-        "theme_color": "#02040A",
-        "background_color": "#02040A",
+        "theme_color": "#080D12",
+        "background_color": "#080D12",
         "icons": [
             {"src": static("core/icons/icon-192.png"), "sizes": "192x192", "type": "image/png"},
             {"src": static("core/icons/icon-512.png"), "sizes": "512x512", "type": "image/png"},

@@ -5,38 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{% block title %}{% if page_title %}{{ page_title }} · ozaydin.dev{% else %}{% ui "site.title" %}{% endif %}{% endblock %}</title>
 {% include "core/_meta.html" %}
-<meta name="theme-color" content="#02040A">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2302040A'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='15' font-weight='700' fill='%23F1F3F8' text-anchor='middle'%3E01%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#080D12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23080D12'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='15' font-weight='700' fill='%23F0EEE9' text-anchor='middle'%3E01%3C/text%3E%3C/svg%3E">
 <link rel="icon" href="{% static 'core/icons/favicon-32.png' %}" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="{% static 'core/icons/apple-touch-icon.png' %}">
 <link rel="manifest" href="/site.webmanifest">
-<link rel="preload" href="{% static 'core/fonts/geist-latin-600-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="{% static 'core/fonts/geist-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{% static 'core/fonts/inter-tight-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+{% if page_key == "home" %}<link rel="preload" href="{% static 'core/fonts/big-shoulders-display-latin-900-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+{% endif %}<link rel="preload" href="{% static 'core/fonts/instrument-serif-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{% static 'core/site.css' %}">
 {% block extra_head %}{% endblock %}
 </head>
 <body>
-<div class="bg" aria-hidden="true"></div>
 <canvas id="bits" aria-hidden="true"></canvas>
 {% if page_key == "home" %}<picture class="poster-wrap"><source media="(max-width: 759px)" srcset="{% static 'core/poster-m.webp' %}"><img class="poster" src="{% static 'core/poster-d.webp' %}" alt="" aria-hidden="true" decoding="async" fetchpriority="low"></picture>{% endif %}
 <div class="grain" aria-hidden="true"></div>
 
-<header class="top glass pad">
-  <div class="wrap top-in">
-    <a class="brand" href="{% lurl 'home' %}">ozaydin.dev</a>
-    <span class="byte mono" id="byte" aria-hidden="true">0b00000000</span>
+<header class="top pad">
+  <div class="top-in cols">
+    <a class="brand" href="{% lurl 'home' %}">ozaydin<span>.dev</span></a>
     <nav class="nav" aria-label="{% ui 'nav.pages' %}">
-      <a href="{% lurl 'projects' %}" data-nav="projects"><i class="bit" aria-hidden="true"></i>{% ui "nav.projects" %}</a>
-      <a href="{% lurl 'blog' %}" data-nav="blog"><i class="bit" aria-hidden="true"></i>{% ui "nav.blog" %}</a>
-      <a href="{% lurl 'about' %}" data-nav="about"><i class="bit" aria-hidden="true"></i>{% ui "nav.about" %}</a>
-      <a href="{% lurl 'contact' %}" data-nav="contact"><i class="bit" aria-hidden="true"></i>{% ui "nav.contact" %}</a>
+      <a href="{% lurl 'projects' %}" data-nav="projects">{% ui "nav.projects" %}</a>
+      <a href="{% lurl 'blog' %}" data-nav="blog">{% ui "nav.blog" %}</a>
+      <a href="{% lurl 'about' %}" data-nav="about">{% ui "nav.about" %}</a>
+      <a href="{% lurl 'contact' %}" data-nav="contact">{% ui "nav.contact" %}</a>
     </nav>
+    <p class="status"><i class="dot" aria-hidden="true"></i>{% ui "status.open" %}</p>
     <nav class="langs" aria-label="{% ui 'lang.switch' %}">
-      <a href="{{ alt_urls.tr|default:'/' }}" hreflang="tr" lang="tr" data-lang="tr"{% if lang == 'tr' %} aria-current="true"{% endif %}>TR</a>
-      <a href="{{ alt_urls.en|default:'/en/' }}" hreflang="en" lang="en" data-lang="en"{% if lang == 'en' %} aria-current="true"{% endif %}>EN</a>
+      <a href="{{ alt_urls.tr|default:'/' }}" hreflang="tr" lang="tr" data-lang="tr"{% if lang == 'tr' %} aria-current="true"{% endif %}>TR</a><span aria-hidden="true">/</span><a href="{{ alt_urls.en|default:'/en/' }}" hreflang="en" lang="en" data-lang="en"{% if lang == 'en' %} aria-current="true"{% endif %}>EN</a>
     </nav>
+    <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="mnav" data-open="{% ui 'nav.menu' %}" data-close="{% ui 'nav.close' %}">{% ui "nav.menu" %}</button>
   </div>
 </header>
+<div class="mnav pad" id="mnav" hidden>
+  <nav aria-label="{% ui 'nav.pages' %}">
+    <a href="{% lurl 'home' %}" data-nav="home"><span class="no" aria-hidden="true">000</span>{% ui "nav.home_long" %}</a>
+    <a href="{% lurl 'projects' %}" data-nav="projects"><span class="no" aria-hidden="true">001</span>{% ui "nav.projects" %}</a>
+    <a href="{% lurl 'blog' %}" data-nav="blog"><span class="no" aria-hidden="true">010</span>{% ui "nav.blog" %}</a>
+    <a href="{% lurl 'about' %}" data-nav="about"><span class="no" aria-hidden="true">011</span>{% ui "nav.about" %}</a>
+    <a href="{% lurl 'contact' %}" data-nav="contact"><span class="no" aria-hidden="true">100</span>{% ui "nav.contact" %}</a>
+  </nav>
+  <p class="status"><i class="dot" aria-hidden="true"></i>{% ui "status.open" %}</p>
+</div>
 
 <main id="app" data-page="{{ page_key|default:'' }}" data-title="{% block title_again %}{% if page_title %}{{ page_title }} · ozaydin.dev{% else %}{% ui 'site.title' %}{% endif %}{% endblock %}" data-alt-tr="{{ alt_urls.tr }}" data-alt-en="{{ alt_urls.en }}">
 {% block content %}{% endblock %}
@@ -52,17 +62,9 @@
   </div>
 </footer>
 
-<nav class="tabbar glass" aria-label="{% ui 'nav.pages' %}">
-  <a href="{% lurl 'home' %}" data-nav="home"><i class="tb" aria-hidden="true"></i>{% ui "nav.home" %}</a>
-  <a href="{% lurl 'projects' %}" data-nav="projects"><i class="tb" aria-hidden="true"></i>{% ui "nav.projects" %}</a>
-  <a href="{% lurl 'blog' %}" data-nav="blog"><i class="tb" aria-hidden="true"></i>{% ui "nav.blog" %}</a>
-  <a href="{% lurl 'about' %}" data-nav="about"><i class="tb" aria-hidden="true"></i>{% ui "nav.about" %}</a>
-  <a href="{% lurl 'contact' %}" data-nav="contact"><i class="tb" aria-hidden="true"></i>{% ui "nav.contact" %}</a>
-</nav>
-
 {% if chat_enabled %}
-<button class="chat-fab glass" id="chat-fab" type="button" aria-expanded="false" aria-controls="chat" aria-label="{% ui 'chat.open' %}"><span class="mono" aria-hidden="true">01</span><span>{% ui "chat.button" %}</span></button>
-<section class="chat glass" id="chat" hidden aria-labelledby="chat-title" data-lang="{{ lang }}" data-thinking="{% ui 'chat.thinking' %}" data-error="{% ui 'chat.error' %}">
+<button class="chat-fab" id="chat-fab" type="button" aria-expanded="false" aria-controls="chat" aria-label="{% ui 'chat.open' %}"><span class="mono" aria-hidden="true">01</span><span>{% ui "chat.button" %}</span></button>
+<section class="chat" id="chat" hidden aria-labelledby="chat-title" data-lang="{{ lang }}" data-thinking="{% ui 'chat.thinking' %}" data-error="{% ui 'chat.error' %}">
   <header class="chat-head">
     <div><h2 id="chat-title">{% ui "chat.title" %}</h2><p class="chat-note">{% ui "chat.note" %}</p></div>
     <button class="chat-x" type="button" aria-label="{% ui 'chat.close' %}">×</button>
@@ -80,6 +82,7 @@
 {% endif %}
 <canvas id="wipe" aria-hidden="true"></canvas>
 <div id="cur" aria-hidden="true">0</div>
+<div class="peek" aria-hidden="true"><img alt="" decoding="async"></div>
 <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="{% ui 'project.gallery' %}">
   <button class="lb-close" type="button" aria-label="{% ui 'gallery.close' %}">×</button>
   <button class="lb-prev" type="button" aria-label="{% ui 'gallery.prev' %}">←</button>

@@ -46,7 +46,7 @@
 
 
   /* ---------- 3B bit alanı ---------- */
-  const field = { want: '01', hov: null, base(n) { this.want = n; this.apply(); }, hover(n) { this.hov = n; this.apply(); }, apply() {}, vel: 0 };
+  const field = { want: '01', hov: null, box: null, base(n) { this.want = n; this.apply(); }, hover(n) { this.hov = n; this.apply(); }, apply() {}, repose() {}, vel: 0 };
 
   function initField() {
     if (!window.THREE) return;
@@ -67,11 +67,11 @@
     for (let i = 0; i < DUST; i++) { dust[i * 3] = (rnd() - 0.5) * 48; dust[i * 3 + 1] = (rnd() - 0.5) * 26; dust[i * 3 + 2] = -22 + rnd() * 28; }
     const fin = (a) => { a.set(dust, M * 3); return a; };
 
-    const widths = { helix: 16, sphere: 8.4 }, cache = {};
+    const widths = { helix: 16, sphere: 8.4 }, heights = {}, cache = {};
     function textForm(key, str) {
       const W = 1024, H = 512, c = document.createElement('canvas'); c.width = W; c.height = H;
       const x = c.getContext('2d', { willReadFrequently: true });
-      let fs = 440; const font = () => { x.font = '600 ' + fs + 'px Geist, system-ui, sans-serif'; };
+      let fs = 440; const font = () => { x.font = '600 ' + fs + 'px "Inter Tight", system-ui, sans-serif'; };
       font(); let w = x.measureText(str).width;
       if (w > 940) { fs *= 940 / w; font(); w = 940; }
       const m = x.measureText(str);
@@ -86,7 +86,7 @@
         a[i * 3 + 1] = -((pts[j + 1] || H / 2) + rnd() * 2 - H / 2) * k;
         a[i * 3 + 2] = (rnd() - 0.5) * 1.6;
       }
-      widths[key] = w * k;
+      widths[key] = w * k; heights[key] = (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) * k;
       return fin(a);
     }
     function form(n) {
@@ -125,7 +125,7 @@
 
     const ac = document.createElement('canvas'); ac.width = 256; ac.height = 128;
     const ax = ac.getContext('2d'); ax.fillStyle = '#fff'; ax.textAlign = 'center'; ax.textBaseline = 'middle';
-    ax.font = '500 112px "Geist Mono", ui-monospace, monospace'; ax.fillText('0', 64, 70); ax.fillText('1', 192, 70);
+    ax.font = '400 112px "Geist Mono", ui-monospace, monospace'; ax.fillText('0', 64, 70); ax.fillText('1', 192, 70);
     const atlas = new THREE.CanvasTexture(ac);
 
     const U = { uT: { value: 0 }, uTime: { value: 0 }, uPR: { value: PR }, uSize: { value: 15 }, uScatter: { value: 2.6 }, uAspect: { value: 1 },
@@ -161,7 +161,7 @@
         '  vec2 uv=vec2((gl_PointCoord.x+vDigit)*0.5,1.0-gl_PointCoord.y);',
         '  float a=texture2D(uAtlas,uv).a; if(a<0.05) discard;',
         '  float b=clamp(vBright,0.0,1.0);',
-        '  gl_FragColor=vec4(mix(vec3(0.36,0.41,0.52),vec3(0.95,0.96,0.98),b),a*vAlpha*(0.45+0.55*b));',
+        '  gl_FragColor=vec4(mix(vec3(0.394,0.413,0.439),vec3(0.941,0.935,0.912),b),a*vAlpha*(0.45+0.55*b));',
         '}'
       ].join('\n')
     });
@@ -172,6 +172,14 @@
       const visW = VIS_H * cam.aspect;
       if (n === 'floor' || n === 'wave') return { x: 0, y: n === 'wave' ? -5 : -5.6, s: 1, dim: n === 'wave' ? 0.9 : 0.45, wave: n === 'wave' ? 1 : 0.3, spin: 0 };
       const w = widths[n] || 8, hero = n === '01';
+      // Ana sayfa girişi: "01" sloganla ad arasındaki boş alana oturur, metnin üstüne binmez.
+      const b = field.box;
+      if (hero && b && b.w > 40 && b.h > 40) {
+        const h = heights[n] || 7, cx = (b.x + b.w / 2) / innerWidth - 0.5, cy = (b.y + b.h / 2) / innerHeight - 0.5;
+        // En az 0.3: daha küçükte arka plandaki toz da şekille birlikte büzülüp bulut gibi görünür.
+        const s = Math.max(0.3, Math.min(1.1, (b.w / innerWidth) * visW * 0.84 / w, (b.h / innerHeight) * VIS_H * 0.8 / h));
+        return { x: cx * visW, y: -cy * VIS_H, s, dim: 1, wave: 0, spin: 0 };
+      }
       const short = innerHeight < 760, k = short ? 0.6 : 1;
       if (tall) return { x: 0, y: VIS_H * (short ? 0.25 : hero ? 0.26 : 0.22), s: Math.min(0.55, visW * 0.84 / w) * k, dim: hero ? 1 : 0.9, wave: 0, spin: n === 'helix' ? 1 : 0 };
       const frac = n === 'sphere' ? 0.34 : n === 'helix' ? 0.42 : 0.48;
@@ -192,6 +200,7 @@
       if (live === null || key !== (live === 'wave' ? 'floor' : live)) { toArr.set(arr); aTo.needsUpdate = true; U.uT.value = reduce || field.instant ? 1 : 0; dur = d; }
       live = n; tgt = pose(n); dirty = true;
     }
+    field.repose = () => { if (live) tgt = pose(live); dirty = true; };
     field.apply = function () { const n = this.hov || this.want; if (n !== live) setTarget(n, live === null ? 2.4 : this.hov ? 0.9 : 1.4); };
 
     function layout() {
@@ -242,7 +251,8 @@
       group.position.set(cur.x, cur.y, 0); group.scale.setScalar(cur.s);
       group.rotation.y = (reduce ? 0 : Math.sin(t * 0.25) * 0.26) + sx * 0.16;
       group.rotation.x = spinA - sy * 0.08;
-      const dk = tall && !(mob.matches && isHome()) && (live !== 'wave') ? clamp(1 - (scrollY - innerHeight * 0.08) / (innerHeight * 0.3), 0.05, 1) : 1;
+      const dk = tall && !(mob.matches && isHome()) && (live !== 'wave') ? clamp(1 - (scrollY - innerHeight * 0.08) / (innerHeight * 0.3), 0.05, 1)
+        : (tall && isHome() && live !== '01' && live !== 'wave' ? 0.55 : 1);
       U.uDim.value = cur.dim * dk; U.uWave.value = cur.wave; U.uScale.value = 0.6 + 0.4 * Math.min(1, cur.s);
       renderer.render(scene, cam);
       if (!canvas.classList.contains('on')) { canvas.classList.add('on'); const po = $('.poster'); if (po) { po.classList.add('gone'); setTimeout(() => po.remove(), 900); } }
@@ -268,14 +278,14 @@
     }
     function draw(p, out) {
       x.clearRect(0, 0, innerWidth, innerHeight);
-      x.font = '500 ' + Math.round(cs * 0.44) + 'px "Geist Mono", ui-monospace, monospace'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.font = '400 ' + Math.round(cs * 0.44) + 'px "Geist Mono", ui-monospace, monospace'; x.textAlign = 'center'; x.textBaseline = 'middle';
       for (let i = 0; i < thr.length; i++) {
         const age = ((out ? thr[i] + 0.12 - p * 1.0 : p * 1.0 - thr[i]) ) / 0.12;
         if (age <= 0) continue;
         const q = i % cols, r = (i / cols) | 0, edge = age < 1;
-        x.fillStyle = edge ? '#111B33' : '#02040A'; x.fillRect(q * cs, r * cs, cs + 0.5, cs + 0.5);
+        x.fillStyle = edge ? '#151A20' : '#080D12'; x.fillRect(q * cs, r * cs, cs + 0.5, cs + 0.5);
         if (edge && Math.random() < 0.3) bits[i] ^= 1;
-        x.fillStyle = edge ? 'rgba(241,243,248,0.95)' : 'rgba(241,243,248,0.08)';
+        x.fillStyle = edge ? 'rgba(240,238,233,0.95)' : 'rgba(240,238,233,0.08)';
         x.fillText(bits[i] ? '1' : '0', q * cs + cs / 2, r * cs + cs / 2 + 1);
       }
     }
@@ -300,7 +310,7 @@
 
 
   /* ---------- Sahne: ekranın ortasındaki bölüm bit alanının şeklini seçer ---------- */
-  let connected = false, scene = null, homeCard = null;
+  let connected = false, scene = null;
   const formName = (f) => (f === 'c' ? (connected ? '1' : '0') : f);
   function pickScene() {
     const mid = innerHeight * 0.5; let hit = null;
@@ -308,7 +318,7 @@
     if (!hit) hit = $('[data-form]', app);
     if (!hit) return;
     scene = hit;
-    field.base(mob.matches && hit.id === 'sec-projeler' && homeCard ? 'd-' + homeCard : formName(hit.dataset.form));
+    field.base(formName(hit.dataset.form));
   }
   addEventListener('resize', () => requestAnimationFrame(pickScene));
 
@@ -321,26 +331,6 @@
       e.target.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: k++ * 80, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)', fill: 'backwards' });
     });
   });
-
-  /* ---------- Telefon: yana kaydırılan kartlar ve bit noktaları ---------- */
-  function swipes(root) {
-    $$('#home-rows, .caps', root).forEach((box) => {
-      const items = [...box.children]; if (!items.length) return;
-      const pips = document.createElement('p');
-      pips.className = 'pips'; pips.setAttribute('aria-hidden', 'true');
-      pips.innerHTML = items.map(() => '<span>0</span>').join('');
-      box.after(pips);
-      let at = -1;
-      const upd = () => {
-        const w = (items[0].offsetWidth || 1) + 16, i = clamp(Math.round(box.scrollLeft / w), 0, items.length - 1);
-        if (i === at) return; at = i;
-        [...pips.children].forEach((s, k) => { s.textContent = k === i ? '1' : '0'; s.classList.toggle('on', k === i); });
-        if (box.id === 'home-rows') { homeCard = items[i].dataset.idx; if (mob.matches && scene && scene.id === 'sec-projeler') field.base('d-' + homeCard); }
-      };
-      box.addEventListener('scroll', () => requestAnimationFrame(upd), { passive: true });
-      upd();
-    });
-  }
 
   /* ---------- Projeler: alan filtresi (her alan bir bit) ---------- */
   function filters(root) {
@@ -490,12 +480,12 @@
   if (!reduce) setInterval(() => { if (!mf || document.hidden) return; for (let k = 0; k < 4; k++) { const c = mfChars[(Math.random() * mfChars.length) | 0]; if (c && c.classList.contains('off')) c.dataset.b = rbit(); } }, 160);
 
   /* ---------- Kaydırma: bayt göstergesi, sahne, manifesto, hız ---------- */
-  const byteEl = $('#byte');
+  const fab = $('#chat-fab');
   let lastY = scrollY, queued = false;
   function onScroll() {
     queued = false;
-    const max = Math.max(1, document.documentElement.scrollHeight - innerHeight), y = scrollY;
-    byteEl.textContent = '0b' + Math.round(clamp(y / max, 0, 1) * 255).toString(2).padStart(8, '0');
+    const y = scrollY;
+    if (fab) fab.classList.toggle('away', isHome() && y < innerHeight * 0.6);
     pickScene();
     field.vel = Math.min(1.5, field.vel + Math.abs(y - lastY) / 500); lastY = y; if (field.dirty) field.dirty();
     if (!reduce && mf && mfChars.length) {
@@ -519,10 +509,166 @@
     const t = $(b.dataset.scroll); if (t) t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   });
 
+  /* ---------- Giriş: ad ekranın genişliğine oturur, "01" boş alana yerleşir ---------- */
+  // Ad gerçek metindir (h1). Yazı tipi gelince harflerin mürekkep genişliği ölçülür ve ad kenardan kenara
+  // oturtulur; telefonda iki satır. JS gelmeden önce CSS'teki clamp() boyutu yaklaşık aynı görünümü verir.
+  const mc = document.createElement('canvas').getContext('2d');
+  const POSTER = '"Big Shoulders Display"';
+  let posterReady = false;
+  const offTop = (el, stop) => { let y = 0; while (el && el !== stop) { y += el.offsetTop; el = el.offsetParent; } return y; };
+  function fitName(h) {
+    const nameEl = $('.name', h), band = $('.h-band', h), top = $('.h-top', h), lines = $$('.ln', nameEl);
+    if (!nameEl || lines.length < 2) return null;
+    const mobile = mob.matches, up = (s) => s.toLocaleUpperCase(document.documentElement.lang || 'tr');
+    nameEl.style.fontSize = '100px'; nameEl.style.margin = '0';
+    lines.forEach((l) => { l.style.fontSize = ''; l.style.marginLeft = '0px'; });
+    h.style.setProperty('--l2', '0px');
+    mc.font = '900 100px ' + POSTER;
+    const ink = (t) => { const m = mc.measureText(t); return { w: m.actualBoundingBoxLeft + m.actualBoundingBoxRight, l: m.actualBoundingBoxLeft }; };
+    const capA = mc.measureText('E').actualBoundingBoxAscent / 100, umlA = mc.measureText('Ö').actualBoundingBoxAscent / 100;
+    const w1 = up(lines[0].textContent.trim()), w2 = up(lines[1].textContent.trim());
+    const cs = getComputedStyle(h), gut = parseFloat(cs.paddingLeft) || 16;
+    const avail = h.clientWidth - gut - (parseFloat(cs.paddingRight) || 16), H = h.clientHeight;
+    const pad = mobile ? Math.max(14, H * 0.02) : clamp(innerWidth * 0.026, 22, 44);
+    const kids = [...band.children].filter((c) => c.offsetParent);
+    const bandC = kids.length ? Math.max(...kids.map((c) => c.offsetTop + c.offsetHeight)) - Math.min(...kids.map((c) => c.offsetTop)) : 0;
+    const room = H - (top.offsetHeight + bandC + (mobile ? 40 : 90)) - pad;
+    const bl = (l) => offTop($('.bl', l), h);
+    let s1, s2;
+    if (!mobile) {
+      const all = ink(w1 + ' ' + w2);
+      s1 = s2 = Math.min(avail / all.w * 100, H * 0.36 / umlA, room / umlA);
+      nameEl.style.fontSize = s1 + 'px';
+      lines[0].style.marginLeft = (all.l * s1 / 100) + 'px';
+    } else {
+      const a = ink(w1), b = ink(w2), gap = 0.075, maxH = Math.min(H * 0.5, room);
+      s1 = avail / a.w * 100; s2 = avail / b.w * 100;
+      const hOf = () => s1 * capA + s2 * (gap + umlA);
+      if (hOf() > maxH) s1 = Math.max(s2, (maxH - s2 * (gap + umlA)) / capA);
+      if (hOf() > maxH) { const k = maxH / hOf(); s1 *= k; s2 *= k; }
+      nameEl.style.fontSize = s1 + 'px'; lines[1].style.fontSize = s2 + 'px';
+      lines[0].style.marginLeft = (a.l * s1 / 100) + 'px';
+      lines[1].style.marginLeft = (b.l * s2 / 100) + 'px';
+      h.style.setProperty('--l2', ((bl(lines[0]) + gap * s2) - (bl(lines[1]) - umlA * s2)) + 'px');
+    }
+    // Üst boşluğu at: bant, ilk satırın mürekkebine otursun; son satırın taban çizgisi kenardan "pad" kadar yukarıda.
+    const inkTop = bl(lines[0]) - (mobile ? capA : umlA) * s1;
+    nameEl.style.marginTop = (-(inkTop - nameEl.offsetTop)) + 'px';
+    h.style.setProperty('--bandPad', Math.round(mobile ? clamp(s1 * 0.09, 14, 22) : clamp(s1 * 0.11, 22, 34)) + 'px');
+    nameEl.style.marginBottom = (-((H - pad) - bl(lines[1]))) + 'px';
+    return { nameTop: bl(lines[0]) - (mobile ? capA : umlA) * s1 };
+  }
+  function heroBox(h, g) {
+    // "01" için boş alan: sloganın altı ile adın üstü arası; masaüstünde künyenin solunda.
+    const top = $('.slogan', h), who = $('.who', h), r = h.getBoundingClientRect(), y0 = r.top;
+    const sb = top.getBoundingClientRect().bottom - y0, wt = who.getBoundingClientRect().top - y0;
+    const nameTop = g ? g.nameTop : $('.name', h).offsetTop;
+    const gut = parseFloat(getComputedStyle(h).paddingLeft) || 16, W = h.clientWidth;
+    if (mob.matches) return { x: gut, y: sb + 16, w: W - gut * 2, h: Math.min(wt, nameTop) - sb - 32 };
+    return { x: W * 0.4, y: sb + 12, w: Math.max(0, who.getBoundingClientRect().left - r.left - 24 - W * 0.4), h: nameTop - sb - 36 };
+  }
+  function hero() {
+    const h = $('.hero', app);
+    if (!h) { if (field.box) { field.box = null; field.repose(); } return; }
+    const run = () => { if (!h.isConnected) return; const g = posterReady ? fitName(h) : null; field.box = heroBox(h, g); field.repose(); };
+    run();
+    if (!posterReady && document.fonts && document.fonts.load) {
+      document.fonts.load('900 100px ' + POSTER, 'EMRE ÖZAYDIN').then(() => { posterReady = true; run(); }, () => {});
+    }
+  }
+  let heroW = innerWidth, heroT = 0;
+  addEventListener('resize', () => {
+    clearTimeout(heroT);
+    heroT = setTimeout(() => {
+      // Telefonda adres çubuğu oynayınca (yalnızca yükseklik biraz değişir) adı yeniden ölçme.
+      if (mob.matches && innerWidth === heroW) return;
+      heroW = innerWidth; hero();
+    }, 140);
+  });
+
+  /* ---------- Proje dizini: satıra gelince kapak görseli imleci gecikmeyle izler ---------- */
+  const peek = $('.peek'), peekImg = peek && $('img', peek);
+  const card = { x: 0, y: 0, tx: 0, ty: 0, r: -5, o: 0, to: 0, row: null, raf: 0, mx: 0, my: 0, last: 0 };
+  const peekOK = () => fine && !mob.matches && peek;
+  function cardTarget() {
+    const row = card.row; if (!row || !row.isConnected) { card.to = 0; return; }
+    const t = $('.t', row).getBoundingClientRect(), d = $('.d', row).getBoundingClientRect(), rr = row.getBoundingClientRect();
+    const cw = peek.offsetWidth, ch = peek.offsetHeight;
+    const lo = t.right + 28, hi = d.left - 22 - cw;
+    if (hi >= lo) {
+      // Başlıkla açıklama arasındaki boşlukta kalır: ikisine de değmez.
+      card.tx = clamp(card.mx + 36, lo, hi);
+      card.ty = clamp(card.my - ch * 0.55, rr.top - ch * 0.28, rr.bottom - ch * 0.72);
+    } else {
+      // Başlık çok uzunsa kart satırın üstüne, soluklaşmış komşu satırın üzerine çıkar.
+      card.tx = clamp(card.mx + 36, t.left, innerWidth - cw - 16);
+      card.ty = rr.top - ch * 0.9;
+    }
+  }
+  function cardLoop(now) {
+    card.raf = 0;
+    const dt = Math.min(0.05, card.last ? (now - card.last) / 1000 : 1 / 60); card.last = now;
+    cardTarget();
+    const k = 1 - Math.exp(-dt * 9), px = card.x;
+    card.x += (card.tx - card.x) * k; card.y += (card.ty - card.y) * k;
+    const v = (card.x - px) / Math.max(dt, 1e-3);
+    card.r += ((-5 + clamp(v * 0.012, -5, 5)) - card.r) * (1 - Math.exp(-dt * 7));
+    card.o += (card.to - card.o) * (1 - Math.exp(-dt * (card.to ? 14 : 18)));
+    const sc = 0.92 + 0.08 * card.o;
+    peek.style.transform = 'translate3d(' + card.x.toFixed(1) + 'px,' + card.y.toFixed(1) + 'px,0) rotate(' + card.r.toFixed(2) + 'deg) scale(' + sc.toFixed(3) + ')';
+    peek.style.opacity = card.o.toFixed(3);
+    if (card.to || card.o > 0.01) card.raf = requestAnimationFrame(cardLoop);
+    else { peek.style.opacity = '0'; card.last = 0; }
+  }
+  function cardHide() { card.to = 0; if (!card.raf && card.o > 0.01) card.raf = requestAnimationFrame(cardLoop); }
+  function peekRows(root) {
+    cardHide(); card.row = null;
+    $$('.list', root).forEach((list) => {
+      $$('.item', list).forEach((it) => {
+        const on = (e) => {
+          it.classList.add('on'); list.classList.add('hov');
+          const src = it.dataset.peek;
+          if (src && peekOK() && !reduce) {
+            if (peekImg.getAttribute('src') !== src) peekImg.src = src;
+            card.mx = e.clientX; card.my = e.clientY;
+            if (card.o < 0.02 || card.row !== it) { card.row = it; cardTarget(); card.x = card.tx - 24; card.y = card.ty + 10; }
+            card.row = it; card.to = 1;
+            if (!card.raf) card.raf = requestAnimationFrame(cardLoop);
+          } else cardHide();
+        };
+        const off = () => { it.classList.remove('on'); list.classList.remove('hov'); cardHide(); };
+        it.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') on(e); });
+        it.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') { card.mx = e.clientX; card.my = e.clientY; } });
+        it.addEventListener('pointerleave', off);
+        // Görseli önceden çek: imleç satıra gelince kart boş görünmesin.
+        if (it.dataset.peek && peekOK()) it.addEventListener('pointerover', () => { const im = new Image(); im.src = it.dataset.peek; }, { once: true, passive: true });
+      });
+    });
+  }
+  addEventListener('scroll', () => { if (card.row && card.to && !card.raf) card.raf = requestAnimationFrame(cardLoop); }, { passive: true });
+
+  /* ---------- Telefon menüsü ---------- */
+  const mbtn = $('#menu-btn'), mnav = $('#mnav');
+  function menu(open) {
+    if (!mbtn || !mnav || open === !mnav.hidden) return;
+    mnav.hidden = !open;
+    mbtn.setAttribute('aria-expanded', String(open));
+    mbtn.textContent = open ? mbtn.dataset.close : mbtn.dataset.open;
+    document.documentElement.classList.toggle('menu-open', open);
+    if (open) { const a = $('a[aria-current="page"]', mnav) || $('a', mnav); a.focus({ preventScroll: true }); }
+  }
+  if (mbtn && mnav) {
+    mbtn.addEventListener('click', () => menu(mnav.hidden));
+    mnav.addEventListener('click', (e) => { if (e.target.closest('a')) menu(false); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape' && !mnav.hidden) { menu(false); mbtn.focus(); } });
+    mob.addEventListener('change', () => { if (!mob.matches) menu(false); });
+  }
+
   /* ---------- Bir sayfanın davranışlarını bağla (ilk açılışta ve her geçişte) ---------- */
   function hoverIdx(root) {
     $$('[data-idx]', root).forEach((a) => {
-      if (!a.closest('#home-rows') && !a.classList.contains('next')) return;
+      // Proje dizininde satırın yıldızı kapak kartı; alanın şekil değiştirmesi yalnızca "sıradaki" bağlantılarında.
+      if (!a.classList.contains('next')) return;
       const on = () => field.hover('d-' + a.dataset.idx), off = () => field.hover(null);
       a.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') on(); }); a.addEventListener('pointerleave', off);
       a.addEventListener('focus', on); a.addEventListener('blur', off);
@@ -533,18 +679,17 @@
     const section = { project: 'projects', post: 'blog', tag: 'blog' }[page] || page;
     $$('[data-nav]').forEach((a) => (a.dataset.nav === section ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
     $$('.langs a').forEach((a) => { const u = app.dataset['alt' + (a.dataset.lang === 'en' ? 'En' : 'Tr')]; if (u) a.href = u; });
-    document.documentElement.classList.toggle('snap', isHome());
   }
   function initPage(first) {
     if (!first) { const po = $('.poster'); if (po) po.remove(); }
-    homeCard = null; scene = null;
+    scene = null;
     const steps = [
       navState,
-      () => { $$('[data-dcio]', app).forEach((s) => dcIO.observe(s)); $$('.rv, .row', app).forEach((s) => rvIO.observe(s)); },
+      () => { $$('[data-dcio]', app).forEach((s) => dcIO.observe(s)); $$('.rv, .row, .item', app).forEach((s) => rvIO.observe(s)); },
       // Uzun başlıklarda harf harf çözülme ilk açılışta pahalı (yüzlerce öğe): sadece kısa başlıklarda ya da geçişlerde yap.
       () => $$('[data-dc]', app).forEach((el, i) => { if (!first || el.textContent.trim().length <= 18) decode(el, 900, (first ? 300 : 380) + i * 140); }),
       () => { hoverIdx(app); filters(app); gallery(app); contact(app); },
-      () => { swipes(app); clock(app); },
+      () => { hero(); peekRows(app); clock(app); },
       () => manifesto(app),
       () => { if (field.hover) field.hover(null); onScroll(); },
       () => document.dispatchEvent(new CustomEvent('page:ready', { detail: { page: app.dataset.page } })),
@@ -586,9 +731,6 @@
     const doc = new DOMParser().parseFromString(html, 'text/html'), next = doc.getElementById('app');
     if (!next) { location.href = url; return; }
     const swap = () => {
-      // Ana sayfadaki kaydırma kilidini (scroll-snap) içerik değişmeden önce kaldır: Safari aksi hâlde
-      // eski kaydırma konumunda kalıp yeni sayfayı ortasından/sonundan açıyor.
-      document.documentElement.classList.remove('snap');
       app.innerHTML = next.innerHTML;
       ['page', 'title', 'altTr', 'altEn'].forEach((k) => { app.dataset[k] = next.dataset[k] || ''; });
       document.title = doc.title;
@@ -726,7 +868,7 @@
     s.src = document.querySelector('script[data-three]').dataset.three;
     s.onload = () => {
       const fontsReady = document.fonts && document.fonts.load
-        ? Promise.race([Promise.all([document.fonts.load('600 400px "Geist"'), document.fonts.load('500 112px "Geist Mono"')]), new Promise((r) => setTimeout(r, 1500))])
+        ? Promise.race([Promise.all([document.fonts.load('600 400px "Inter Tight"', '01'), document.fonts.load('400 112px "Geist Mono"', '01')]), new Promise((r) => setTimeout(r, 1500))])
         : Promise.resolve();
       fontsReady.then(() => { initField(); pickScene(); }, () => { initField(); pickScene(); });
     };

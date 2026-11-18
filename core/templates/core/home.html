@@ -1,26 +1,18 @@
 {% extends "base.html" %}{% load site %}
 {% block content %}
-<section class="hero pad" data-form="01">
-  <div class="wrap">
+<section class="hero pad" data-form="01" aria-labelledby="name">
+  <div class="h-top cols">
+    <p class="slogan"><span class="ln"><span>{% ui "home.slogan_1" %}</span></span> <span class="ln"><span><em>{% ui "home.slogan_2" %}</em></span></span></p>
+  </div>
+  <div class="h-band cols">
     <div class="clock" id="clock" role="img" aria-label="{% ui 'clock.label' %}" data-city="{% ui 'clock.city' %}" data-label="{% ui 'clock.label' %}">
       <div class="clock-grid" aria-hidden="true"></div>
-      <span class="label" id="clock-label">{% ui "clock.city" %}</span>
+      <span class="label" id="clock-label" aria-hidden="true">{% ui "clock.city" %}</span>
     </div>
+    <p class="who"><b>{% ui "home.who_1" %}</b> {% ui "home.who_2" %}<br>{% ui "home.who_3" %}</p>
+    <p class="status-m"><i class="dot" aria-hidden="true"></i>{% ui "status.open" %}</p>
   </div>
-  <div aria-hidden="true"></div>
-  <div class="wrap grid hero-main">
-    <div class="hero-name">
-      <p class="eyebrow">{% ui "home.eyebrow" %}</p>
-      <h1><span class="ln" data-dc>Emre</span><span class="ln" data-dc>Özaydın</span></h1>
-    </div>
-    <div class="hero-side">
-      <p>{% ui "home.lead" %}</p>
-      <div class="actions">
-        <button class="btn solid" type="button" data-scroll="#sec-projeler">{% ui "home.cta_projects" %}</button>
-        <a class="btn ghost glass" href="{% lurl 'contact' %}">{% ui "home.cta_contact" %}</a>
-      </div>
-    </div>
-  </div>
+  <h1 class="name" id="name"><span class="ln"><span class="w">Emre<i class="bl"></i></span></span> <span class="ln"><span class="w">Özaydın<i class="bl"></i></span></span></h1>
 </section>
 
 <section class="mf pad" data-form="wave" id="mf">
@@ -30,26 +22,22 @@
   </div>
 </section>
 
-<section class="sec pad" id="sec-projeler" data-form="floor">
-  <div class="wrap grid">
-    <div class="left">
-      <div class="sec-head">
-        <h2 class="h" data-dcio>{% ui "home.projects" %}</h2>
-        <a class="link" href="{% lurl 'projects' %}">{% ui "home.see_all" %} <span class="ar" aria-hidden="true">→</span></a>
-      </div>
-      <div class="rows" id="home-rows">
-        {% for p in projects %}{% include "projects/_row.html" with wide=False %}{% endfor %}
-      </div>
-    </div>
+<section class="index pad" id="sec-projeler" data-form="floor" aria-labelledby="h-projects">
+  <header class="sec-head cols">
+    <h2 class="h" id="h-projects" data-dcio>{% ui "home.projects" %}</h2>
+    <a class="link" href="{% lurl 'projects' %}">{% ui "home.see_all" %} <span class="ar" aria-hidden="true">→</span></a>
+  </header>
+  <div class="list" id="home-rows">
+    {% for p in projects %}{% include "projects/_row.html" %}{% endfor %}
   </div>
 </section>
 
 {% if posts %}
-<section class="sec pad" id="sec-yazilar" data-form="floor">
+<section class="sec pad" id="sec-yazilar" data-form="floor" aria-labelledby="h-writing">
   <div class="wrap grid">
     <div class="left">
       <div class="sec-head">
-        <h2 class="h" data-dcio>{% ui "home.writing" %}</h2>
+        <h2 class="h" id="h-writing" data-dcio>{% ui "home.writing" %}</h2>
         <a class="link" href="{% lurl 'blog' %}">{% ui "home.all_posts" %} <span class="ar" aria-hidden="true">→</span></a>
       </div>
       {% include "blog/_home_latest.html" %}
@@ -58,10 +46,10 @@
 </section>
 {% endif %}
 
-<section class="sec pad" data-form="helix">
+<section class="sec pad" data-form="helix" aria-labelledby="h-what">
   <div class="wrap grid">
     <div class="left">
-      <div class="sec-head"><h2 class="h" data-dcio>{% ui "home.what" %}</h2></div>
+      <div class="sec-head"><h2 class="h" id="h-what" data-dcio>{% ui "home.what" %}</h2></div>
       <div class="caps">
         <div class="cap rv"><i class="bit" aria-hidden="true"></i><h3>{% ui "cap.backend" %}</h3>
           <p>{% ui "cap.backend_p" %}</p>

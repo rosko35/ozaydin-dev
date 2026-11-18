@@ -10,12 +10,15 @@ STRINGS = {
     "nav.home": ("Ana", "Home"),
     "nav.home_long": ("Ana sayfa", "Home"),
     "nav.projects": ("Projeler", "Projects"),
-    "nav.blog": ("Blog", "Blog"),
+    "nav.blog": ("Yazılar", "Writing"),
     "nav.about": ("Hakkımda", "About"),
     "nav.contact": ("İletişim", "Contact"),
     "nav.pages": ("Sayfalar", "Pages"),
     "nav.footer": ("Alt menü", "Footer"),
     "lang.switch": ("Dil", "Language"),
+    "nav.menu": ("Menü", "Menu"),
+    "nav.close": ("Kapat", "Close"),
+    "status.open": ("Uzun dönem staja açık", "Open to long-term internships"),
     # Genel
     "site.title": ("Emre Özaydın · ozaydin.dev", "Emre Özaydın · ozaydin.dev"),
     "site.description": (
@@ -32,6 +35,11 @@ STRINGS = {
         "From zeros and ones to <b>working systems</b>. I build web apps with Django and games with Unity.",
     ),
     "home.cta_projects": ("Projeleri gör", "See projects"),
+    "home.slogan_1": ("Sıfırlardan ve birlerden,", "From zeros and ones"),
+    "home.slogan_2": ("çalışan sistemlere.", "to working systems."),
+    "home.who_1": ("Bilişim öğrencisi", "IT student"),
+    "home.who_2": ("Doğu Akdeniz Üniversitesi.", "Eastern Mediterranean University."),
+    "home.who_3": ("Django ile web, Unity ile oyun.", "Web with Django, games with Unity."),
     "home.cta_contact": ("İletişime geç", "Get in touch"),
     "home.principle": ("İlke", "Principle"),
     "home.manifesto": (
@@ -114,7 +122,7 @@ STRINGS = {
     "about.title": ("Hakkımda", "About"),
     "about.eyebrow": ("Bilişim öğrencisi · Türkiye", "IT student · Türkiye"),
     # Blog
-    "blog.title": ("Blog", "Blog"),
+    "blog.title": ("Yazılar", "Writing"),
     # 404
     "404.title": ("Bu adreste bir şey yok", "Nothing at this address"),
     "404.lead": ("Aradığın sayfa taşınmış ya da hiç var olmamış olabilir.", "The page may have moved or never existed."),
@@ -129,7 +137,7 @@ STRINGS = {
     "blog.empty": ("Henüz yazı yok.", "No posts yet."),
     "blog.empty_p": ("İlk yazı hazırlanıyor. Yayımlanınca burada ve RSS'te görünecek.", "The first post is on its way. It will show up here and in the RSS feed."),
     "blog.tag_empty": ("Bu etikette henüz yazı yok.", "No posts with this tag yet."),
-    "blog.back": ("Blog", "Blog"),
+    "blog.back": ("Yazılar", "Writing"),
     "blog.minutes": ("{n} dk okuma", "{n} min read"),
     "blog.tags": ("Etiketler", "Tags"),
     "blog.all": ("Tümü", "All"),

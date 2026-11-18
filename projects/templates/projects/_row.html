@@ -1,7 +1,7 @@
-{% load site %}<a class="row{% if wide %} wide{% endif %}" href="{% lurl 'project' slug=p.slug %}" data-idx="{{ p.idx }}">
-  <span class="i">{{ p.idx }}</span><span class="n">{{ p.title }}</span>
-  {% if not wide %}<span class="y">{{ p.year|default:"" }}</span>{% endif %}
-  <span class="s">{{ p|t:"summary" }}</span>
-  {% tape p.title %}
-  {% if wide %}<span class="y">{{ p.year|default:"" }}</span>{% endif %}
-</a>
+{% load site %}{% with im=p.card_image %}<a class="item cols" href="{% lurl 'project' slug=p.slug %}" data-idx="{{ p.idx }}"{% if im %} data-peek="{{ im.url }}"{% endif %}>
+  <span class="no">{{ p.idx }}</span>
+  <span class="t">{{ p.title }}</span>
+  <span class="d">{{ p|t:"summary" }}{% if p.stack %}<small>{{ p.stack }}</small>{% endif %}</span>
+  <span class="y">{{ p.year|default:"" }}</span>
+  {% if im %}<span class="shot"><img src="{{ im.url }}" alt="" width="{{ im.w }}" height="{{ im.h }}" loading="lazy" decoding="async"></span>{% endif %}
+</a>{% endwith %}
