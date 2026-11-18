@@ -274,7 +274,8 @@
       addEventListener('touchend', () => { tUp = true; }, { passive: true }); addEventListener('touchcancel', () => { tUp = true; }, { passive: true });
     }
 
-    let raf = 0, last = 0, sx = 0, sy = 0;
+    // Salınım alanın başladığı andan sayılır: ilk karede şekil düz durur, posterle (durağan resim) aynı.
+    let raf = 0, last = 0, sx = 0, sy = 0, t0 = -1;
     function frame(now) {
       raf = requestAnimationFrame(frame);
       const t = now * 0.001, dt = Math.min(0.05, last ? t - last : 0.016); last = t;
@@ -293,14 +294,15 @@
         U.uTime.value = t; U.uVel.value = Math.min(1.2, field.vel);
       }
       dirty = false;
+      if (t0 < 0) t0 = t; const st = t - t0;
       // Girişteki "01" sayfayla birlikte kayar: aşağı inerken adın arkasına düşmez.
       const lift = live === '01' && field.box && isHome() ? Math.min(scrollY, innerHeight) / innerHeight * VIS_H : 0;
       group.position.set(cur.x, cur.y + lift, 0); group.scale.setScalar(cur.s);
       // Büyük şekil daha az döner: kenarları kutusundan taşmasın.
       const sway = 1 / Math.max(1, cur.s * 0.8);
-      group.rotation.y = ((reduce ? 0 : Math.sin(t * 0.25) * 0.26) + sx * 0.16) * sway;
+      group.rotation.y = ((reduce ? 0 : Math.sin(st * 0.25) * 0.26) + sx * 0.16) * sway;
       group.rotation.x = spinA - sy * 0.08;
-      dustPts.rotation.y = sx * 0.05 + (reduce ? 0 : Math.sin(t * 0.11) * 0.04); dustPts.rotation.x = -sy * 0.03;
+      dustPts.rotation.y = sx * 0.05 + (reduce ? 0 : Math.sin(st * 0.11) * 0.04); dustPts.rotation.x = -sy * 0.03;
       dustPts.position.y = lift * 0.35;
       const dk = tall && !(mob.matches && isHome()) && (live !== 'wave') ? clamp(1 - (scrollY - innerHeight * 0.08) / (innerHeight * 0.3), 0.05, 1)
         : (tall && isHome() && live !== '01' && live !== 'wave' ? 0.85 : 1);
