@@ -24,11 +24,12 @@
 <header class="top pad">
   <div class="top-in cols">
     <a class="brand" href="{% lurl 'home' %}">ozaydin<span>.dev</span></a>
+    <span class="byte mono" id="byte" aria-hidden="true">0b00000000</span>
     <nav class="nav" aria-label="{% ui 'nav.pages' %}">
-      <a href="{% lurl 'projects' %}" data-nav="projects">{% ui "nav.projects" %}</a>
-      <a href="{% lurl 'blog' %}" data-nav="blog">{% ui "nav.blog" %}</a>
-      <a href="{% lurl 'about' %}" data-nav="about">{% ui "nav.about" %}</a>
-      <a href="{% lurl 'contact' %}" data-nav="contact">{% ui "nav.contact" %}</a>
+      <a href="{% lurl 'projects' %}" data-nav="projects"><i class="bit" aria-hidden="true"></i>{% ui "nav.projects" %}</a>
+      <a href="{% lurl 'blog' %}" data-nav="blog"><i class="bit" aria-hidden="true"></i>{% ui "nav.blog" %}</a>
+      <a href="{% lurl 'about' %}" data-nav="about"><i class="bit" aria-hidden="true"></i>{% ui "nav.about" %}</a>
+      <a href="{% lurl 'contact' %}" data-nav="contact"><i class="bit" aria-hidden="true"></i>{% ui "nav.contact" %}</a>
     </nav>
     <p class="status"><i class="dot" aria-hidden="true"></i>{% ui "status.open" %}</p>
     <nav class="langs" aria-label="{% ui 'lang.switch' %}">
@@ -82,7 +83,7 @@
 {% endif %}
 <canvas id="wipe" aria-hidden="true"></canvas>
 <div id="cur" aria-hidden="true">0</div>
-<div class="peek" aria-hidden="true"><img alt="" decoding="async"></div>
+<div class="peek" aria-hidden="true"><img alt="" decoding="async"><span class="pt"></span></div>
 <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="{% ui 'project.gallery' %}">
   <button class="lb-close" type="button" aria-label="{% ui 'gallery.close' %}">×</button>
   <button class="lb-prev" type="button" aria-label="{% ui 'gallery.prev' %}">←</button>

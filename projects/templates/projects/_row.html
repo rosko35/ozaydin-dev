@@ -4,5 +4,7 @@
   <span class="d">{{ p|t:"summary" }}{% if p.stack %}<small>{{ p.stack }}</small>{% endif %}</span>
   <span class="y">{{ p.year|default:"" }}</span>
   {# Projeler sayfasında ilk satırın görseli dokunmatik ekranda sayfanın en büyük öğesi: geç yüklenmez. #}
+  {# Adın UTF-8 baytlarından delikli şerit: masaüstünde kapak kartının altına kopyalanır, görseli olmayan projede kapağın yerini alır. #}
+  <span class="tp{% if not im %} solo{% endif %}" aria-hidden="true">{% tape p.title %}</span>
   {% if im %}<span class="shot"><img src="{{ im.url }}" alt="" width="{{ im.w }}" height="{{ im.h }}" {% if not eager %}loading="lazy" {% endif %}decoding="async"></span>{% endif %}
 </a>{% endwith %}

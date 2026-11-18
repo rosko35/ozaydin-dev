@@ -43,10 +43,33 @@
       else { el.textContent = txt; el.classList.remove('dc'); el._dc = false; }
     })(performance.now());
   }
+  // Girişteki ad da 0/1'den çözülür. Ad, yazı tipine göre ölçülüp oturtulan özel bir yapı (.ln > .w + .bl)
+  // olduğu için yapı bozulmadan yalnızca harf düğümleri geçici olarak bölünür; bitince eski hâline döner.
+  function decodeName(el, dur = 1100, delay = 0) {
+    if (reduce || el._dc) return;
+    el._dc = true;
+    const sr = document.createElement('span'); sr.className = 'sr'; sr.textContent = el.textContent.replace(/\s+/g, ' ').trim();
+    const lns = $$('.ln', el), orig = [], cs = [];
+    $$('.w', el).forEach((w) => {
+      const t = w.firstChild; if (!t || t.nodeType !== 3) return;
+      const f = document.createDocumentFragment(), mine = [];
+      for (const ch of t.textContent) { const c = document.createElement('span'); c.className = 'c off'; c.textContent = ch; c.dataset.b = rbit(); f.appendChild(c); cs.push(c); mine.push(c); }
+      w.replaceChild(f, t); orig.push([w, t, mine]);
+    });
+    el.prepend(sr); lns.forEach((l) => l.setAttribute('aria-hidden', 'true')); el.classList.add('dc');
+    const n = cs.length, t0 = performance.now() + delay;
+    (function tick(now) {
+      const p = (now - t0) / dur;
+      for (let i = 0; i < n; i++) { const c = cs[i]; if (i / n < p) c.classList.remove('off'); else if (Math.random() < 0.2) c.dataset.b = rbit(); }
+      if (p < 1.02 && el.isConnected) { requestAnimationFrame(tick); return; }
+      orig.forEach(([w, t, mine]) => { w.insertBefore(t, mine[0]); mine.forEach((c) => c.remove()); });
+      sr.remove(); lns.forEach((l) => l.removeAttribute('aria-hidden')); el.classList.remove('dc'); el._dc = false;
+    })(performance.now());
+  }
 
 
   /* ---------- 3B bit alanı ---------- */
-  const field = { want: '01', hov: null, box: null, base(n) { this.want = n; this.apply(); }, hover(n) { this.hov = n; this.apply(); }, apply() {}, repose() {}, vel: 0 };
+  const field = { want: '01', hov: null, box: null, hbox: null, base(n) { this.want = n; this.apply(); }, hover(n) { this.hov = n; this.apply(); }, apply() {}, repose() {}, vel: 0 };
 
   function initField() {
     if (!window.THREE) return;
@@ -54,7 +77,7 @@
     let renderer;
     try { renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'high-performance' }); } catch (e) { return; }
     const weak = innerWidth < 760 || (navigator.hardwareConcurrency || 8) <= 4;
-    const N = weak ? 7000 : 16000, DUST = Math.floor(N * 0.12), M = N - DUST;
+    const N = weak ? 7000 : 17000, DUST = Math.floor(N * (innerWidth < 760 ? 0.08 : weak ? 0.12 : 0.15)), M = N - DUST;
     const PR = Math.min(devicePixelRatio || 1, weak ? 1.5 : 1.75);
     renderer.setPixelRatio(PR); renderer.setClearColor(0x000000, 0);
     const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(40, 1, 0.1, 140);
@@ -63,13 +86,24 @@
     const VIS_H = 2 * 22 * Math.tan(20 * Math.PI / 180);
 
     let sd = 7; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
-    const dust = new Float32Array(DUST * 3);
-    for (let i = 0; i < DUST; i++) { dust[i * 3] = (rnd() - 0.5) * 48; dust[i * 3 + 1] = (rnd() - 0.5) * 26; dust[i * 3 + 2] = -22 + rnd() * 28; }
-    const fin = (a) => { a.set(dust, M * 3); return a; };
-    // Toz parçacıkları (son DUST tanesi) şekil küçülünce onunla birlikte büzülmesin diye ayrı ölçeklenir.
-    const isDust = new Float32Array(N); isDust.fill(1, M);
+    // Toz (son DUST tanesi) şekilden ayrı bir nesnedir: şekil küçülse, kayar ya da döner, toz ekranın
+    // bütün genişliğine yayılı kalır. Yayılım ekranın en-boy oranına göre ayarlanır (geniş ekranda kenarlar boş kalmaz).
+    const dust = new Float32Array(DUST * 3), dSeed = new Float32Array(DUST * 3);
+    for (let i = 0; i < DUST * 3; i++) dSeed[i] = rnd();
+    let dustAsp = 0;
+    function spreadDust(asp) {
+      dustAsp = asp;
+      const hw = 11.5 * asp + 3, hh = 12.5;
+      for (let i = 0; i < DUST; i++) {
+        const z = -22 + dSeed[i * 3 + 2] * 30, k = (22 - z) / 34; // uzaktaki toz daha geniş alana dağılır
+        dust[i * 3] = (dSeed[i * 3] - 0.5) * 2 * hw * Math.max(0.55, k); dust[i * 3 + 1] = (dSeed[i * 3 + 1] - 0.5) * 2 * hh * Math.max(0.55, k); dust[i * 3 + 2] = z;
+      }
+    }
+    spreadDust(innerWidth / innerHeight);
+    const fin = (a) => a;
+    const isDust = new Float32Array(DUST); isDust.fill(1);
 
-    const widths = { helix: 16, sphere: 8.4 }, heights = {}, cache = {};
+    const widths = { helix: 16, sphere: 8.4 }, heights = { helix: 4.4, sphere: 8.4 }, cache = {};
     function textForm(key, str) {
       const W = 1024, H = 512, c = document.createElement('canvas'); c.width = W; c.height = H;
       const x = c.getContext('2d', { willReadFrequently: true });
@@ -81,7 +115,7 @@
       x.fillText(str, W / 2, H / 2 + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2);
       const d = x.getImageData(0, 0, W, H).data, pts = [];
       for (let py = 0; py < H; py += 2) for (let px = 0; px < W; px += 2) if (d[(py * W + px) * 4 + 3] > 128) pts.push(px, py);
-      const a = new Float32Array(N * 3), k = 24 / W, n = pts.length / 2;
+      const a = new Float32Array(M * 3), k = 24 / W, n = pts.length / 2;
       for (let i = 0; i < M; i++) {
         const j = n ? ((rnd() * n) | 0) * 2 : 0;
         a[i * 3] = ((pts[j] || W / 2) + rnd() * 2 - W / 2) * k;
@@ -93,7 +127,7 @@
     }
     function form(n) {
       if (cache[n]) return cache[n];
-      const a = new Float32Array(N * 3);
+      const a = new Float32Array(M * 3);
       if (n === '01' || n === '0' || n === '1') return (cache[n] = textForm(n, n));
       if (n.startsWith('d-')) return (cache[n] = textForm(n, n.slice(2)));
       if (n === 'floor') {
@@ -114,16 +148,20 @@
     }
 
     const seed = new Float32Array(N), rand = new Float32Array(N * 3);
+    const zeroM = new Float32Array(M);
     for (let i = 0; i < N; i++) {
       seed[i] = rnd();
       const th = rnd() * 6.283, ph = Math.acos(2 * rnd() - 1), R = 0.4 + rnd();
       rand[i * 3] = Math.sin(ph) * Math.cos(th) * R; rand[i * 3 + 1] = Math.sin(ph) * Math.sin(th) * R; rand[i * 3 + 2] = Math.cos(ph) * R;
     }
-    const fromArr = new Float32Array(form('scatter')), toArr = new Float32Array(N * 3);
+    const fromArr = new Float32Array(form('scatter')), toArr = new Float32Array(M * 3);
     const geo = new THREE.BufferGeometry();
     const aFrom = new THREE.BufferAttribute(fromArr, 3), aTo = new THREE.BufferAttribute(toArr, 3);
     geo.setAttribute('position', aTo); geo.setAttribute('aFrom', aFrom);
-    geo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1)); geo.setAttribute('aDust', new THREE.BufferAttribute(isDust, 1)); geo.setAttribute('aRand', new THREE.BufferAttribute(rand, 3));
+    geo.setAttribute('aSeed', new THREE.BufferAttribute(seed.subarray(0, M), 1)); geo.setAttribute('aDust', new THREE.BufferAttribute(zeroM, 1)); geo.setAttribute('aRand', new THREE.BufferAttribute(rand.subarray(0, M * 3), 3));
+    const dgeo = new THREE.BufferGeometry(), aDustPos = new THREE.BufferAttribute(dust, 3);
+    dgeo.setAttribute('position', aDustPos); dgeo.setAttribute('aFrom', aDustPos);
+    dgeo.setAttribute('aSeed', new THREE.BufferAttribute(seed.subarray(M), 1)); dgeo.setAttribute('aDust', new THREE.BufferAttribute(isDust, 1)); dgeo.setAttribute('aRand', new THREE.BufferAttribute(rand.subarray(M * 3), 3));
 
     const ac = document.createElement('canvas'); ac.width = 256; ac.height = 128;
     const ax = ac.getContext('2d'); ax.fillStyle = '#fff'; ax.textAlign = 'center'; ax.textBaseline = 'middle';
@@ -131,12 +169,12 @@
     const atlas = new THREE.CanvasTexture(ac);
 
     const U = { uT: { value: 0 }, uTime: { value: 0 }, uPR: { value: PR }, uSize: { value: 15 }, uScatter: { value: 2.6 }, uAspect: { value: 1 },
-      uDim: { value: 1 }, uWave: { value: 0 }, uVel: { value: 0 }, uScale: { value: 1 }, uDustK: { value: 1 }, uDustScale: { value: 1 }, uPtr: { value: new THREE.Vector2(-9, -9) }, uPush: { value: 0.14 }, uAtlas: { value: atlas } };
+      uDim: { value: 1 }, uWave: { value: 0 }, uVel: { value: 0 }, uScale: { value: 1 }, uDustScale: { value: 1 }, uDustDim: { value: 1 }, uPtr: { value: new THREE.Vector2(-9, -9) }, uPush: { value: 0.14 }, uAtlas: { value: atlas } };
     const mat = new THREE.ShaderMaterial({
       uniforms: U, transparent: true, depthWrite: false, depthTest: false,
       vertexShader: [
         'attribute vec3 aFrom; attribute float aSeed; attribute vec3 aRand; attribute float aDust;',
-        'uniform float uT,uTime,uPR,uSize,uScatter,uAspect,uDim,uWave,uVel,uScale,uDustK,uDustScale,uPush; uniform vec2 uPtr;',
+        'uniform float uT,uTime,uPR,uSize,uScatter,uAspect,uDim,uWave,uVel,uScale,uDustScale,uDustDim,uPush; uniform vec2 uPtr;',
         'varying float vDigit; varying float vAlpha; varying float vBright;',
         'void main(){',
         '  float t=clamp(uT*1.55-aSeed*0.55,0.0,1.0); float e=t*t*(3.0-2.0*t);',
@@ -145,7 +183,6 @@
         '  p+=aRand*(arc*uScatter+uVel*0.4);',
         '  p.y+=sin(p.x*0.55+uTime*0.7)*cos(p.z*0.4+uTime*0.45)*uWave;',
         '  p.x+=sin(uTime*0.6+aSeed*40.0)*0.04; p.y+=cos(uTime*0.5+aSeed*31.0)*0.04;',
-        '  p*=mix(1.0,uDustK,aDust);',
         '  vec4 mv=modelViewMatrix*vec4(p,1.0); vec4 clip=projectionMatrix*mv;',
         '  vec2 df=clip.xy/clip.w-uPtr; df.x*=uAspect; float f=smoothstep(0.3,0.0,length(df));',
         '  vec2 push=normalize(df+vec2(0.0001))*f*uPush; push.x/=uAspect; clip.xy+=push*clip.w;',
@@ -155,7 +192,7 @@
         '  float k=floor(uTime*(0.3+1.6*r3)+aSeed*100.0)+floor(uTime*16.0)*step(0.25,f)+floor(arc*6.0);',
         '  vDigit=step(0.5,fract(sin(k*12.9898+aSeed*78.233)*43758.5453));',
         '  vBright=(r2>0.9?1.0:(r2>0.55?0.6:0.32))+f*0.7+arc*0.25;',
-        '  vAlpha=uDim*smoothstep(46.0,22.0,depth)*smoothstep(0.5,4.0,depth);',
+        '  vAlpha=mix(uDim,uDustDim,aDust)*smoothstep(46.0,22.0,depth)*smoothstep(0.5,4.0,depth);',
         '}'
       ].join('\n'),
       fragmentShader: [
@@ -169,19 +206,23 @@
       ].join('\n')
     });
     const points = new THREE.Points(geo, mat); points.frustumCulled = false; group.add(points);
+    const dustPts = new THREE.Points(dgeo, mat); dustPts.frustumCulled = false; scene.add(dustPts);
 
     let tall = false, dur = 2.4, live = null, dirty = true;
     function pose(n) {
       const visW = VIS_H * cam.aspect;
       if (n === 'floor' || n === 'wave') return { x: 0, y: n === 'wave' ? -5 : -5.6, s: 1, dim: n === 'wave' ? 0.9 : 0.45, wave: n === 'wave' ? 1 : 0.3, spin: 0 };
       const w = widths[n] || 8, hero = n === '01';
-      // Ana sayfa girişi: "01" sloganla ad arasındaki boş alana oturur, metnin üstüne binmez.
-      const b = field.box;
-      if (hero && b && b.w > 40 && b.h > 40) {
+      // Şekil için ekranda ayrılmış bir kutu varsa (girişte sloganla ad arası; proje satırına gelince satırın
+      // karşı yarısı) şekil o kutuya sığabildiği en büyük boyda oturur. Toz ayrı nesne olduğu için etkilenmez.
+      let b = hero ? field.box : (field.hov === n && field.hbox) || null;
+      // Masaüstünde diğer şekiller (sayfa numarası, sarmal, küre, 0/1) ekranın sağ yarısındaki kutuya sığar:
+      // geniş ekranda büyür, hiçbir genişlikte kenardan taşmaz.
+      if (!b && !tall) { const W = innerWidth, H = innerHeight, g = Math.max(24, W * 0.03); b = { x: W * 0.5, y: H * 0.14, w: W * 0.5 - g * 2.4, h: H * 0.72, max: n === 'sphere' ? 1 : 1.25 }; }
+      if (b && b.w > 40 && b.h > 40) {
         const h = heights[n] || 7, cx = (b.x + b.w / 2) / innerWidth - 0.5, cy = (b.y + b.h / 2) / innerHeight - 0.5;
-        // Kısa ekranda şekil boşluğa sığacak kadar küçülür; toz bundan etkilenmez (uDustK).
-        const s = Math.max(0.12, Math.min(1.1, (b.w / innerWidth) * visW * 0.84 / w, (b.h / innerHeight) * VIS_H * 0.8 / h));
-        return { x: cx * visW, y: -cy * VIS_H, s, dim: 1, wave: 0, spin: 0 };
+        const s = Math.max(0.12, Math.min(b.max || 2.6, (b.w / innerWidth) * visW * 0.9 / w, (b.h / innerHeight) * VIS_H * 0.86 / h));
+        return { x: cx * visW, y: -cy * VIS_H, s, dim: hero ? 1 : field.hov === n ? 0.95 : 0.85, wave: 0, spin: n === 'helix' ? 1 : 0 };
       }
       const short = innerHeight < 760, k = short ? 0.6 : 1;
       if (tall) return { x: 0, y: VIS_H * (short ? 0.25 : hero ? 0.26 : 0.22), s: Math.min(0.55, visW * 0.84 / w) * k, dim: hero ? 1 : 0.9, wave: 0, spin: n === 'helix' ? 1 : 0 };
@@ -194,7 +235,7 @@
     function setTarget(n, d) {
       const key = n === 'wave' ? 'floor' : n, arr = form(key), T = U.uT.value;
       if (live !== null && key !== (live === 'wave' ? 'floor' : live)) {
-        for (let i = 0; i < N; i++) {
+        for (let i = 0; i < M; i++) {
           const t = clamp(T * 1.55 - seed[i] * 0.55, 0, 1), e = t * t * (3 - 2 * t), j = i * 3;
           fromArr[j] += (toArr[j] - fromArr[j]) * e; fromArr[j + 1] += (toArr[j + 1] - fromArr[j + 1]) * e; fromArr[j + 2] += (toArr[j + 2] - fromArr[j + 2]) * e;
         }
@@ -209,6 +250,7 @@
     function layout() {
       const w = innerWidth, h = innerHeight;
       renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+      if (Math.abs(cam.aspect - dustAsp) > 0.15) { spreadDust(cam.aspect); aDustPos.needsUpdate = true; }
       tall = cam.aspect < 0.9 || w < 760; U.uAspect.value = cam.aspect;
       if (live) tgt = pose(live);
       dirty = true;
@@ -254,12 +296,18 @@
       // Girişteki "01" sayfayla birlikte kayar: aşağı inerken adın arkasına düşmez.
       const lift = live === '01' && field.box && isHome() ? Math.min(scrollY, innerHeight) / innerHeight * VIS_H : 0;
       group.position.set(cur.x, cur.y + lift, 0); group.scale.setScalar(cur.s);
-      group.rotation.y = (reduce ? 0 : Math.sin(t * 0.25) * 0.26) + sx * 0.16;
+      // Büyük şekil daha az döner: kenarları kutusundan taşmasın.
+      const sway = 1 / Math.max(1, cur.s * 0.8);
+      group.rotation.y = ((reduce ? 0 : Math.sin(t * 0.25) * 0.26) + sx * 0.16) * sway;
       group.rotation.x = spinA - sy * 0.08;
+      dustPts.rotation.y = sx * 0.05 + (reduce ? 0 : Math.sin(t * 0.11) * 0.04); dustPts.rotation.x = -sy * 0.03;
+      dustPts.position.y = lift * 0.35;
       const dk = tall && !(mob.matches && isHome()) && (live !== 'wave') ? clamp(1 - (scrollY - innerHeight * 0.08) / (innerHeight * 0.3), 0.05, 1)
-        : (tall && isHome() && live !== '01' && live !== 'wave' ? 0.55 : 1);
+        : (tall && isHome() && live !== '01' && live !== 'wave' ? 0.85 : 1);
       U.uDim.value = cur.dim * dk; U.uWave.value = cur.wave; const ds = Math.max(0.3, Math.min(1, cur.s));
-      U.uScale.value = (0.6 + 0.4 * ds) * Math.sqrt(Math.min(1, cur.s / 0.3)); U.uDustScale.value = 0.6 + 0.4 * ds; U.uDustK.value = Math.max(0.3, cur.s) / Math.max(0.05, cur.s);
+      U.uDustDim.value = Math.max(0.35, dk) * (live === 'floor' || live === 'wave' ? 0.7 : 1) * (tall ? 0.75 : 1);
+      // Büyüyen şekilde bitler de biraz büyür (seyrek görünmesin); küçülende küçülür.
+      U.uScale.value = (0.6 + 0.4 * ds) * Math.sqrt(Math.min(1, cur.s / 0.3)) * Math.min(1.45, Math.sqrt(Math.max(1, cur.s))); U.uDustScale.value = tall ? 0.7 : 0.9;
       renderer.render(scene, cam);
       if (!canvas.classList.contains('on')) { canvas.classList.add('on'); const po = $('.poster'); if (po) { po.classList.add('gone'); setTimeout(() => po.remove(), 900); } }
     }
@@ -316,7 +364,7 @@
 
 
   /* ---------- Sahne: ekranın ortasındaki bölüm bit alanının şeklini seçer ---------- */
-  let connected = false, scene = null;
+  let connected = false, scene = null, homeCard = null;
   const formName = (f) => (f === 'c' ? (connected ? '1' : '0') : f);
   function pickScene() {
     const mid = innerHeight * 0.5; let hit = null;
@@ -324,7 +372,8 @@
     if (!hit) hit = $('[data-form]', app);
     if (!hit) return;
     scene = hit;
-    field.base(formName(hit.dataset.form));
+    // Telefonda ana sayfanın proje bölümünde alan, yana kaydırılan karttaki projenin numarasını gösterir.
+    field.base(mob.matches && hit.id === 'sec-projeler' && homeCard ? 'd-' + homeCard : formName(hit.dataset.form));
   }
   addEventListener('resize', () => requestAnimationFrame(pickScene));
 
@@ -337,6 +386,28 @@
       e.target.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: k++ * 80, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)', fill: 'backwards' });
     });
   });
+
+  /* ---------- Telefon: yana kaydırılan kartlar ve bit noktaları ---------- */
+  function swipes(root) {
+    $$('#home-rows, .caps', root).forEach((box) => {
+      const items = [...box.children]; if (items.length < 2) return;
+      const pips = document.createElement('p');
+      pips.className = 'pips'; pips.setAttribute('aria-hidden', 'true');
+      pips.innerHTML = items.map(() => '<span>0</span>').join('');
+      box.after(pips);
+      let at = -1;
+      const upd = () => {
+        if (!mob.matches) { if (box.id === 'home-rows') homeCard = null; return; }
+        const w = (items[1].offsetLeft - items[0].offsetLeft) || 1, i = clamp(Math.round(box.scrollLeft / w), 0, items.length - 1);
+        if (i === at) return; at = i;
+        [...pips.children].forEach((s, k) => { s.textContent = k === i ? '1' : '0'; s.classList.toggle('on', k === i); });
+        if (box.id === 'home-rows') { homeCard = items[i].dataset.idx; if (scene && scene.id === 'sec-projeler') field.base('d-' + homeCard); }
+      };
+      box.addEventListener('scroll', () => requestAnimationFrame(upd), { passive: true });
+      mob.addEventListener('change', () => { at = -1; upd(); });
+      upd();
+    });
+  }
 
   /* ---------- Projeler: alan filtresi (her alan bir bit) ---------- */
   function filters(root) {
@@ -486,11 +557,16 @@
   if (!reduce) setInterval(() => { if (!mf || document.hidden) return; for (let k = 0; k < 4; k++) { const c = mfChars[(Math.random() * mfChars.length) | 0]; if (c && c.classList.contains('off')) c.dataset.b = rbit(); } }, 160);
 
   /* ---------- Kaydırma: bayt göstergesi, sahne, manifesto, hız ---------- */
-  const fab = $('#chat-fab');
-  let lastY = scrollY, queued = false;
+  const fab = $('#chat-fab'), byteEl = $('#byte');
+  let lastY = scrollY, queued = false, lastByte = -1;
   function onScroll() {
     queued = false;
-    const y = scrollY;
+    const y = scrollY, max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    // Bayt göstergesi: sayfanın ne kadarının okunduğu, 8 bit (0–255).
+    const by = Math.round(clamp(y / max, 0, 1) * 255);
+    if (byteEl && by !== lastByte) { lastByte = by; byteEl.textContent = '0b' + by.toString(2).padStart(8, '0'); }
+    if (byteEl) byteEl.classList.toggle('float', y > 24);
+    if (field.hov && field.hbox && hovRow) { field.hbox = rowBox(hovRow); field.repose(); }
     if (fab) fab.classList.toggle('away', isHome() && y < innerHeight * 0.6);
     pickScene();
     field.vel = Math.min(1.5, field.vel + Math.abs(y - lastY) / 500); lastY = y; if (field.dirty) field.dirty();
@@ -571,7 +647,18 @@
     const nameTop = g ? g.nameTop : $('.name', h).offsetTop;
     const gut = parseFloat(getComputedStyle(h).paddingLeft) || 16, W = h.clientWidth;
     if (mob.matches) return { x: gut, y: sb + 4, w: W - gut * 2, h: Math.min(wt, nameTop) - sb - 12 };
-    return { x: W * 0.4, y: sb + 12, w: Math.max(0, who.getBoundingClientRect().left - r.left - 24 - W * 0.4), h: nameTop - sb - 36 };
+    // Masaüstü: iki aday kutu. (1) Sloganın mürekkebinin sağı, menünün altından adın üstüne kadar (şekil
+    // sloganın yanına doğru yükselir); (2) sloganın altı. Hangisinde "01" daha büyük olursa o seçilir.
+    // Künye (sağ altta) ve slogan arkadaki örtü sayesinde okunur kalır; şekil künyenin üstüne binebilir.
+    const rg = document.createRange(), tw = document.createTreeWalker(top, NodeFilter.SHOW_TEXT);
+    let ink = 0;
+    for (let n = tw.nextNode(); n; n = tw.nextNode()) { rg.selectNodeContents(n); for (const q of rg.getClientRects()) ink = Math.max(ink, q.right - r.left); }
+    const H = h.clientHeight, hb = ($('.top') || h).getBoundingClientRect().bottom - y0 + 28, bot = nameTop - Math.max(18, H * 0.02);
+    const ratio = 1.16; // "01"in genişlik/yükseklik oranı (yaklaşık; asıl sığdırma pose() içinde)
+    const fit = (b) => Math.min(b.w / ratio, b.h);
+    const x1 = Math.max(ink + W * 0.035, W * 0.42), b1 = { x: x1, y: hb, w: W - gut - x1, h: bot - hb };
+    const x2 = W * 0.36, b2 = { x: x2, y: sb + 12, w: W - gut - x2, h: bot - sb - 12 };
+    return fit(b1) >= fit(b2) ? b1 : b2;
   }
   function hero() {
     const h = $('.hero', app);
@@ -593,7 +680,7 @@
   });
 
   /* ---------- Proje dizini: satıra gelince kapak görseli imleci gecikmeyle izler ---------- */
-  const peek = $('.peek'), peekImg = peek && $('img', peek);
+  const peek = $('.peek'), peekImg = peek && $('img', peek), peekTape = peek && $('.pt', peek);
   const card = { x: 0, y: 0, tx: 0, ty: 0, r: -5, o: 0, to: 0, row: null, raf: 0, mx: 0, my: 0, last: 0 };
   const peekOK = () => fine && !mob.matches && peek;
   function cardTarget() {
@@ -633,9 +720,12 @@
       $$('.item', list).forEach((it) => {
         const on = (e) => {
           it.classList.add('on'); list.classList.add('hov');
-          const src = it.dataset.peek;
-          if (src && peekOK() && !reduce) {
-            if (peekImg.getAttribute('src') !== src) peekImg.src = src;
+          const src = it.dataset.peek, tp = $('.tp', it);
+          if ((src || tp) && peekOK() && !reduce) {
+            // Kart: kapak görseli ve altında adın baytlarından delikli şerit; görsel yoksa kartın kendisi şerittir.
+            if (src && peekImg.getAttribute('src') !== src) peekImg.src = src;
+            peek.classList.toggle('noimg', !src);
+            if (peekTape.dataset.for !== it.dataset.idx) { peekTape.innerHTML = tp ? tp.innerHTML : ''; peekTape.dataset.for = it.dataset.idx; }
             card.mx = e.clientX; card.my = e.clientY;
             if (card.o < 0.02 || card.row !== it) { card.row = it; cardTarget(); card.x = card.tx - 24; card.y = card.ty + 10; }
             card.row = it; card.to = 1;
@@ -671,11 +761,25 @@
   }
 
   /* ---------- Bir sayfanın davranışlarını bağla (ilk açılışta ve her geçişte) ---------- */
+  // Proje satırına gelince alan o projenin ikilik numarasına dönüşür. Şekil, satırın karşı yarısında
+  // (satır ekranın üstündeyse altta, alttaysa üstte) sağa yaslı bir kutuya oturur: satırın yazısına binmez.
+  let hovRow = null;
+  function rowBox(row) {
+    const r = row.getBoundingClientRect(), H = innerHeight, W = innerWidth, gut = parseFloat(getComputedStyle($('.pad', app) || document.body).paddingLeft) || 24;
+    // Şekil satırın bölümünden dışarı taşmaz (ör. ana sayfada alttaki "Yazılar" bölümünün üstüne binmez).
+    const sec = (row.closest('section, .page') || app).getBoundingClientRect();
+    const top = Math.max(84, sec.top + 12), bottom = Math.min(H - 28, sec.bottom - 12), up = { y: top, h: r.top - 20 - top }, dn = { y: r.bottom + 20, h: bottom - r.bottom - 20 };
+    const v = up.h > dn.h ? up : dn, x = W * 0.36;
+    return { x, y: v.y, w: W - gut - x, h: Math.min(v.h, H * 0.5), max: 1.4 };
+  }
   function hoverIdx(root) {
     $$('[data-idx]', root).forEach((a) => {
-      // Proje dizininde satırın yıldızı kapak kartı; alanın şekil değiştirmesi yalnızca "sıradaki" bağlantılarında.
-      if (!a.classList.contains('next')) return;
-      const on = () => field.hover('d-' + a.dataset.idx), off = () => field.hover(null);
+      const row = a.classList.contains('item');
+      const on = () => {
+        if (row) { if (!fine || mob.matches) return; hovRow = a; field.hbox = rowBox(a); }
+        field.hover('d-' + a.dataset.idx);
+      };
+      const off = () => { if (hovRow === a) hovRow = null; field.hover(null); };
       a.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') on(); }); a.addEventListener('pointerleave', off);
       a.addEventListener('focus', on); a.addEventListener('blur', off);
     });
@@ -685,17 +789,19 @@
     const section = { project: 'projects', post: 'blog', tag: 'blog' }[page] || page;
     $$('[data-nav]').forEach((a) => (a.dataset.nav === section ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
     $$('.langs a').forEach((a) => { const u = app.dataset['alt' + (a.dataset.lang === 'en' ? 'En' : 'Tr')]; if (u) a.href = u; });
+    document.documentElement.classList.toggle('snap', isHome());
   }
   function initPage(first) {
     if (!first) { const po = $('.poster'); if (po) po.remove(); }
-    scene = null;
+    scene = null; homeCard = null; hovRow = null; field.hbox = null;
     const steps = [
       navState,
       () => { $$('[data-dcio]', app).forEach((s) => dcIO.observe(s)); $$('.rv, .row, .item', app).forEach((s) => rvIO.observe(s)); },
       // Uzun başlıklarda harf harf çözülme ilk açılışta pahalı (yüzlerce öğe): sadece kısa başlıklarda ya da geçişlerde yap.
       () => $$('[data-dc]', app).forEach((el, i) => { if (!first || el.textContent.trim().length <= 18) decode(el, 900, (first ? 300 : 380) + i * 140); }),
+      () => $$('.hero .name', app).forEach((el) => decodeName(el, 1100, first ? 200 : 380)),
       () => { hoverIdx(app); filters(app); gallery(app); contact(app); },
-      () => { hero(); peekRows(app); clock(app); },
+      () => { hero(); peekRows(app); swipes(app); clock(app); },
       () => manifesto(app),
       () => { if (field.hover) field.hover(null); onScroll(); },
       () => document.dispatchEvent(new CustomEvent('page:ready', { detail: { page: app.dataset.page } })),
@@ -737,6 +843,9 @@
     const doc = new DOMParser().parseFromString(html, 'text/html'), next = doc.getElementById('app');
     if (!next) { location.href = url; return; }
     const swap = () => {
+      // Ana sayfadaki kaydırma kilidini (scroll-snap) içerik değişmeden önce kaldır: Safari aksi hâlde
+      // eski kaydırma konumunda kalıp yeni sayfayı ortasından/sonundan açıyor.
+      document.documentElement.classList.remove('snap');
       app.innerHTML = next.innerHTML;
       ['page', 'title', 'altTr', 'altEn'].forEach((k) => { app.dataset[k] = next.dataset[k] || ''; });
       document.title = doc.title;
