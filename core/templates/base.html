@@ -18,7 +18,7 @@
 </head>
 <body>
 <canvas id="bits" aria-hidden="true"></canvas>
-{% if page_key == "home" %}<picture class="poster-wrap"><source media="(max-width: 759px)" srcset="{% static 'core/poster-m.webp' %}"><img class="poster" src="{% static 'core/poster-d.webp' %}" alt="" aria-hidden="true" decoding="async" fetchpriority="low"></picture>{% endif %}
+{% if page_key == "home" %}<picture class="poster-wrap"><source media="(max-width: 759px) and (min-aspect-ratio: 13/25)" srcset="{% static 'core/poster-s.webp' %}"><source media="(max-width: 759px)" srcset="{% static 'core/poster-m.webp' %}"><img class="poster" src="{% static 'core/poster-d.webp' %}" alt="" aria-hidden="true" decoding="async" fetchpriority="low"></picture>{% endif %}
 <div class="grain" aria-hidden="true"></div>
 
 <header class="top pad">

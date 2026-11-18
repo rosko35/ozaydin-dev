@@ -66,6 +66,8 @@
     const dust = new Float32Array(DUST * 3);
     for (let i = 0; i < DUST; i++) { dust[i * 3] = (rnd() - 0.5) * 48; dust[i * 3 + 1] = (rnd() - 0.5) * 26; dust[i * 3 + 2] = -22 + rnd() * 28; }
     const fin = (a) => { a.set(dust, M * 3); return a; };
+    // Toz parçacıkları (son DUST tanesi) şekil küçülünce onunla birlikte büzülmesin diye ayrı ölçeklenir.
+    const isDust = new Float32Array(N); isDust.fill(1, M);
 
     const widths = { helix: 16, sphere: 8.4 }, heights = {}, cache = {};
     function textForm(key, str) {
@@ -121,7 +123,7 @@
     const geo = new THREE.BufferGeometry();
     const aFrom = new THREE.BufferAttribute(fromArr, 3), aTo = new THREE.BufferAttribute(toArr, 3);
     geo.setAttribute('position', aTo); geo.setAttribute('aFrom', aFrom);
-    geo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1)); geo.setAttribute('aRand', new THREE.BufferAttribute(rand, 3));
+    geo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1)); geo.setAttribute('aDust', new THREE.BufferAttribute(isDust, 1)); geo.setAttribute('aRand', new THREE.BufferAttribute(rand, 3));
 
     const ac = document.createElement('canvas'); ac.width = 256; ac.height = 128;
     const ax = ac.getContext('2d'); ax.fillStyle = '#fff'; ax.textAlign = 'center'; ax.textBaseline = 'middle';
@@ -129,12 +131,12 @@
     const atlas = new THREE.CanvasTexture(ac);
 
     const U = { uT: { value: 0 }, uTime: { value: 0 }, uPR: { value: PR }, uSize: { value: 15 }, uScatter: { value: 2.6 }, uAspect: { value: 1 },
-      uDim: { value: 1 }, uWave: { value: 0 }, uVel: { value: 0 }, uScale: { value: 1 }, uPtr: { value: new THREE.Vector2(-9, -9) }, uPush: { value: 0.14 }, uAtlas: { value: atlas } };
+      uDim: { value: 1 }, uWave: { value: 0 }, uVel: { value: 0 }, uScale: { value: 1 }, uDustK: { value: 1 }, uDustScale: { value: 1 }, uPtr: { value: new THREE.Vector2(-9, -9) }, uPush: { value: 0.14 }, uAtlas: { value: atlas } };
     const mat = new THREE.ShaderMaterial({
       uniforms: U, transparent: true, depthWrite: false, depthTest: false,
       vertexShader: [
-        'attribute vec3 aFrom; attribute float aSeed; attribute vec3 aRand;',
-        'uniform float uT,uTime,uPR,uSize,uScatter,uAspect,uDim,uWave,uVel,uScale,uPush; uniform vec2 uPtr;',
+        'attribute vec3 aFrom; attribute float aSeed; attribute vec3 aRand; attribute float aDust;',
+        'uniform float uT,uTime,uPR,uSize,uScatter,uAspect,uDim,uWave,uVel,uScale,uDustK,uDustScale,uPush; uniform vec2 uPtr;',
         'varying float vDigit; varying float vAlpha; varying float vBright;',
         'void main(){',
         '  float t=clamp(uT*1.55-aSeed*0.55,0.0,1.0); float e=t*t*(3.0-2.0*t);',
@@ -143,12 +145,13 @@
         '  p+=aRand*(arc*uScatter+uVel*0.4);',
         '  p.y+=sin(p.x*0.55+uTime*0.7)*cos(p.z*0.4+uTime*0.45)*uWave;',
         '  p.x+=sin(uTime*0.6+aSeed*40.0)*0.04; p.y+=cos(uTime*0.5+aSeed*31.0)*0.04;',
+        '  p*=mix(1.0,uDustK,aDust);',
         '  vec4 mv=modelViewMatrix*vec4(p,1.0); vec4 clip=projectionMatrix*mv;',
         '  vec2 df=clip.xy/clip.w-uPtr; df.x*=uAspect; float f=smoothstep(0.3,0.0,length(df));',
         '  vec2 push=normalize(df+vec2(0.0001))*f*uPush; push.x/=uAspect; clip.xy+=push*clip.w;',
         '  gl_Position=clip;',
         '  float depth=-mv.z; float r1=fract(aSeed*7.13); float r2=fract(aSeed*91.7); float r3=fract(aSeed*3.71);',
-        '  gl_PointSize=min(uSize*(0.55+0.9*r1)*uPR*uScale*(22.0/max(depth,0.5)),48.0*uPR);',
+        '  gl_PointSize=min(uSize*(0.55+0.9*r1)*uPR*mix(uScale,uDustScale,aDust)*(22.0/max(depth,0.5)),48.0*uPR);',
         '  float k=floor(uTime*(0.3+1.6*r3)+aSeed*100.0)+floor(uTime*16.0)*step(0.25,f)+floor(arc*6.0);',
         '  vDigit=step(0.5,fract(sin(k*12.9898+aSeed*78.233)*43758.5453));',
         '  vBright=(r2>0.9?1.0:(r2>0.55?0.6:0.32))+f*0.7+arc*0.25;',
@@ -176,8 +179,8 @@
       const b = field.box;
       if (hero && b && b.w > 40 && b.h > 40) {
         const h = heights[n] || 7, cx = (b.x + b.w / 2) / innerWidth - 0.5, cy = (b.y + b.h / 2) / innerHeight - 0.5;
-        // En az 0.3: daha küçükte arka plandaki toz da şekille birlikte büzülüp bulut gibi görünür.
-        const s = Math.max(0.3, Math.min(1.1, (b.w / innerWidth) * visW * 0.84 / w, (b.h / innerHeight) * VIS_H * 0.8 / h));
+        // Kısa ekranda şekil boşluğa sığacak kadar küçülür; toz bundan etkilenmez (uDustK).
+        const s = Math.max(0.12, Math.min(1.1, (b.w / innerWidth) * visW * 0.84 / w, (b.h / innerHeight) * VIS_H * 0.8 / h));
         return { x: cx * visW, y: -cy * VIS_H, s, dim: 1, wave: 0, spin: 0 };
       }
       const short = innerHeight < 760, k = short ? 0.6 : 1;
@@ -255,7 +258,8 @@
       group.rotation.x = spinA - sy * 0.08;
       const dk = tall && !(mob.matches && isHome()) && (live !== 'wave') ? clamp(1 - (scrollY - innerHeight * 0.08) / (innerHeight * 0.3), 0.05, 1)
         : (tall && isHome() && live !== '01' && live !== 'wave' ? 0.55 : 1);
-      U.uDim.value = cur.dim * dk; U.uWave.value = cur.wave; U.uScale.value = 0.6 + 0.4 * Math.min(1, cur.s);
+      U.uDim.value = cur.dim * dk; U.uWave.value = cur.wave; const ds = Math.max(0.3, Math.min(1, cur.s));
+      U.uScale.value = (0.6 + 0.4 * ds) * Math.sqrt(Math.min(1, cur.s / 0.3)); U.uDustScale.value = 0.6 + 0.4 * ds; U.uDustK.value = Math.max(0.3, cur.s) / Math.max(0.05, cur.s);
       renderer.render(scene, cam);
       if (!canvas.classList.contains('on')) { canvas.classList.add('on'); const po = $('.poster'); if (po) { po.classList.add('gone'); setTimeout(() => po.remove(), 900); } }
     }
@@ -566,7 +570,7 @@
     const sb = top.getBoundingClientRect().bottom - y0, wt = who.getBoundingClientRect().top - y0;
     const nameTop = g ? g.nameTop : $('.name', h).offsetTop;
     const gut = parseFloat(getComputedStyle(h).paddingLeft) || 16, W = h.clientWidth;
-    if (mob.matches) return { x: gut, y: sb + 16, w: W - gut * 2, h: Math.min(wt, nameTop) - sb - 32 };
+    if (mob.matches) return { x: gut, y: sb + 4, w: W - gut * 2, h: Math.min(wt, nameTop) - sb - 12 };
     return { x: W * 0.4, y: sb + 12, w: Math.max(0, who.getBoundingClientRect().left - r.left - 24 - W * 0.4), h: nameTop - sb - 36 };
   }
   function hero() {

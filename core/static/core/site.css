@@ -159,6 +159,11 @@ a:hover > .bit::before, a[aria-current="page"] > .bit::before, [aria-pressed="tr
 .who { grid-column: 10 / 13; font-size: var(--t-small); line-height: 1.5; color: var(--g2); }
 .who b { display: block; color: var(--fg); font-weight: 560; }
 .status-m { display: none; }
+/* Metnin arkasında zemin renginde yumuşak örtü: arkadaki 0/1 tozu yazının okunmasını bozmasın. */
+.slogan, .who, .status-m { position: relative; isolation: isolate; }
+.slogan::before, .who::before, .status-m::before { content: ""; position: absolute; z-index: -1; inset: -2px -6px; border-radius: 14px; pointer-events: none;
+  background: oklch(0.155 0.014 255 / 0.8); box-shadow: 0 0 22px 18px oklch(0.155 0.014 255 / 0.8); }
+.slogan::before { inset: 4% 2% 12% 0; background: oklch(0.155 0.014 255 / 0.55); box-shadow: 0 0 34px 22px oklch(0.155 0.014 255 / 0.55); }
 /* Ad: site.js yazı tipinin ölçüsüyle tam oturtur; bu değerler o hesabın yaklaşığı (JS gelmeden önce kayma olmasın). */
 .name { margin: -0.0764em 0 calc(clamp(22px, 2.6vw, 44px) - 0.231em); font: 900 min(calc((100vw - 2 * var(--gut)) * 0.1925), 44svh)/1 var(--poster); letter-spacing: 0; text-transform: uppercase; white-space: nowrap; color: var(--fg); }
 .name .ln { display: inline-block; overflow: hidden; padding-top: 0.3em; margin-top: -0.3em; vertical-align: baseline; }
@@ -370,7 +375,9 @@ h1.pd-title { font-size: clamp(3.25rem, 9vw, 9rem); max-width: min(14ch, 100%); 
   .h-band { display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; padding-bottom: var(--bandPad, 16px); }
   .clock { display: none; }
   .who { font-size: 0.875rem; max-width: 30ch; }
-  .status-m { display: block; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--rule); font-size: 0.875rem; color: var(--g1); }
+  .status-m { display: block; margin-top: 16px; padding-top: 12px; font-size: 0.875rem; color: var(--g1); }
+  .status-m::before { inset: 10px auto -2px -6px; width: min(100%, 15em); }
+  .status-m::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--rule); }
   .name { font-size: calc((100vw - 2 * var(--gut)) * 0.505); margin: -0.0794em 0 calc(max(14px, 2svh) - 0.083em); }
   .name .ln { display: block; }
   .name .ln + .ln { font-size: 0.668em; margin-top: var(--l2, -0.3228em); }
