@@ -248,7 +248,9 @@
         U.uTime.value = t; U.uVel.value = Math.min(1.2, field.vel);
       }
       dirty = false;
-      group.position.set(cur.x, cur.y, 0); group.scale.setScalar(cur.s);
+      // Girişteki "01" sayfayla birlikte kayar: aşağı inerken adın arkasına düşmez.
+      const lift = live === '01' && field.box && isHome() ? Math.min(scrollY, innerHeight) / innerHeight * VIS_H : 0;
+      group.position.set(cur.x, cur.y + lift, 0); group.scale.setScalar(cur.s);
       group.rotation.y = (reduce ? 0 : Math.sin(t * 0.25) * 0.26) + sx * 0.16;
       group.rotation.x = spinA - sy * 0.08;
       const dk = tall && !(mob.matches && isHome()) && (live !== 'wave') ? clamp(1 - (scrollY - innerHeight * 0.08) / (innerHeight * 0.3), 0.05, 1)
