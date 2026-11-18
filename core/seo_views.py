@@ -51,7 +51,7 @@ def _card_response(kind, key, lang, spec):
 @require_GET
 def og_home(request, lang):
     with translation.override(lang):
-        spec = {"title": ui("og.home"), "label": "ozaydin.dev · 0b01", "tape_text": "ozaydin.dev"}
+        spec = {"title": ui("home.slogan_1"), "title_2": ui("home.slogan_2"), "label": "ozaydin.dev · 0b01"}
     return _card_response("home", "home", lang, spec)
 
 

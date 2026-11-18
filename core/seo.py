@@ -87,9 +87,14 @@ def og_image_url(request, obj=None):
     route = route_of(request)
     name, kwargs = route if route else ("home", {})
     url = absolute(og_path(name, kwargs, current_lang()))
+    # ?v=: kartın tasarım sürümü (ve varsa içeriğin güncellenme zamanı). Değişince paylaşım sitelerinin
+    # önbelleği de yenilenir.
+    from .og.render import VERSION
+
+    url += f"?v={VERSION}"
     updated = getattr(obj, "updated", None)
     if updated:
-        url += "?v=" + str(int(updated.timestamp()))
+        url += "-" + str(int(updated.timestamp()))
     return url
 
 
