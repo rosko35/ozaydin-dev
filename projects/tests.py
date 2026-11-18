@@ -34,3 +34,35 @@ class ProjectPageTests(TestCase):
             r = self.client.get(url, HTTP_HOST="localhost")
             self.assertContains(r, "data-peek=", count=1)
             self.assertContains(r, 'class="shot"')
+
+    def test_card_uses_small_webp_copy(self):
+        # Kart tam boy kapağı değil, 640 px genişliğinde WebP kopyayı yükler; kapak değişince kopya yenilenir.
+        from io import BytesIO
+        from django.core.management import call_command
+        from PIL import Image
+
+        def png(w, h, color):
+            buf = BytesIO()
+            Image.new("RGB", (w, h), color).save(buf, "PNG")
+            return ContentFile(buf.getvalue())
+
+        p = Project.objects.get(slug="safe-city-2072")
+        p.cover.save("buyuk.png", png(1600, 1200, "gray"), save=True)
+        updated = Project.objects.get(pk=p.pk).updated
+        r = self.client.get("/projeler/", HTTP_HOST="localhost")
+        p.refresh_from_db()
+        self.assertTrue(p.card_thumb.name.startswith("projects/cards/"))
+        self.assertTrue(p.card_thumb.name.endswith(".webp"))
+        self.assertEqual((p.card_w, p.card_h), (640, 480))
+        self.assertEqual(p.updated, updated)
+        self.assertContains(r, f'data-peek="{p.card_thumb.url}"')
+        self.assertContains(r, f'<img src="{p.card_thumb.url}" alt="" width="640" height="480" loading="lazy"')
+        self.assertNotContains(r, p.cover.url)
+
+        first = p.card_thumb.name
+        p.cover.save("yeni.png", png(800, 800, "red"), save=True)
+        call_command("kart_gorselleri", stdout=__import__("io").StringIO())
+        p.refresh_from_db()
+        self.assertNotEqual(p.card_thumb.name, first)
+        self.assertEqual((p.card_w, p.card_h), (640, 640))
+        self.assertFalse(p.card_thumb.storage.exists(first))

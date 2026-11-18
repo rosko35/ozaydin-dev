@@ -63,6 +63,11 @@ class Project(models.Model):
         "video kapak resmi", upload_to="projects/videos/", blank=True,
         help_text="İsteğe bağlı. Video oynatılmadan önce görünen kare. Boşsa kapak görseli kullanılır.",
     )
+    # Proje dizinindeki kart için küçük kopya (WebP, 640 px genişlik). Kendiliğinden üretilir.
+    card_thumb = models.ImageField(upload_to="projects/cards/", blank=True, editable=False)
+    card_thumb_src = models.CharField(max_length=255, blank=True, editable=False)
+    card_w = models.PositiveIntegerField(default=0, editable=False)
+    card_h = models.PositiveIntegerField(default=0, editable=False)
     featured = models.BooleanField("ana sayfada göster", default=True)
     is_published = models.BooleanField("yayında", default=True)
     updated = models.DateTimeField("güncellendi", auto_now=True)
@@ -80,10 +85,45 @@ class Project(models.Model):
         """İkilik numara, en az 3 hane: 1 → '001'."""
         return format(self.number, "03b")
 
+    CARD_WIDTH = 640
+
+    def card_source(self):
+        """Proje dizininde satırın görseli: kapak, yoksa video kapağı, yoksa ilk galeri görseli (ya da None)."""
+        for f in (self.cover, self.video_poster):
+            if f:
+                return f
+        im = self.images.first()
+        return im.image if im and im.image else None
+
+    def ensure_card_thumb(self):
+        """Kart görselinin küçük kopyası yoksa ya da kaynak değiştiyse üretir. Kopyayı döndürür (ya da None).
+        Kayıt update() ile yazılır: 'güncellendi' tarihi değişmez, save() tetiklenmez."""
+        src = self.card_source()
+        if not src:
+            return None
+        thumb = self.card_thumb
+        if thumb and self.card_thumb_src == src.name and thumb.storage.exists(thumb.name):
+            return thumb
+        content, (w, h) = to_webp(src, self.CARD_WIDTH, quality=80, width=self.CARD_WIDTH)
+        old = thumb.name if thumb else ""
+        name = thumb.storage.save(thumb.field.generate_filename(self, f"{self.slug}-{content.name}"), content)
+        self.card_thumb.name, self.card_thumb_src, self.card_w, self.card_h = name, src.name, w, h
+        if self.pk:
+            type(self).objects.filter(pk=self.pk).update(card_thumb=name, card_thumb_src=src.name, card_w=w, card_h=h)
+        if old and old != name:
+            thumb.storage.delete(old)
+        return self.card_thumb
+
     @cached_property
     def card_image(self):
-        """Proje dizininde satırın görseli: kapak, yoksa video kapağı, yoksa ilk galeri görseli.
-        Hiçbiri yoksa None (o satırda kart çıkmaz)."""
+        """Satırın görseli (küçük WebP kopya). Hiç görsel yoksa None: o satırda kart çıkmaz."""
+        try:
+            thumb = self.ensure_card_thumb()
+        except (OSError, ValueError, SyntaxError):
+            thumb = None
+        if thumb:
+            return {"url": thumb.url, "w": self.card_w, "h": self.card_h}
+        # Küçük kopya üretilemediyse (bozuk dosya, disk izni) eldeki görsel kullanılır.
         for f in (self.cover, self.video_poster):
             if f:
                 try:

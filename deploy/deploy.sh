@@ -4,27 +4,31 @@
 set -euo pipefail
 cd /srv/ozaydin-dev
 
-echo "1/6 Kod çekiliyor"
+echo "1/7 Kod çekiliyor"
 git pull --ff-only
 
-echo "2/6 Paketler"
+echo "2/7 Paketler"
 "$HOME/.local/bin/uv" pip install -q -r requirements.txt
 
 set -a; . /etc/ozaydin-dev.env; set +a
 
-echo "3/6 Veritabanı"
+echo "3/7 Veritabanı"
 .venv/bin/python manage.py migrate --noinput
 
-echo "4/6 Statik dosyalar"
+echo "4/7 Statik dosyalar"
 .venv/bin/python manage.py collectstatic --noinput -v 0
 
-echo "5/6 Yüklenen dosyalar klasörü"
+echo "5/7 Proje kartı görselleri"
+# Eksik ya da eskimiş küçük kart görsellerini üretir (site gerekirse kendisi de üretir).
+.venv/bin/python manage.py kart_gorselleri
+
+echo "6/7 Yüklenen dosyalar klasörü"
 # media/: admin'den yüklenen görseller ve paylaşım kartları (media/og/). Nginx (www-data) okuyabilmeli.
 mkdir -p media/og
 chmod 755 media
 chmod -R u+rwX,go+rX media
 
-echo "6/6 Yeniden başlatılıyor"
+echo "7/7 Yeniden başlatılıyor"
 sudo systemctl restart ozaydin-dev
 
 # Sunucu ayar dosyaları depoda değiştiyse hatırlat (bunları kopyalamak elle yapılır)
