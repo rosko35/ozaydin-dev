@@ -568,7 +568,12 @@
     const by = Math.round(clamp(y / max, 0, 1) * 255);
     if (byteEl && by !== lastByte) { lastByte = by; byteEl.textContent = '0b' + by.toString(2).padStart(8, '0'); }
     if (byteEl) byteEl.classList.toggle('float', y > 24);
-    if (field.hov && field.hbox && hovRow) { field.hbox = rowBox(hovRow); field.repose(); }
+    if (hovRow) {
+      // Kaydırınca satır imlecin altından çıktıysa (tarayıcı her zaman hemen haber vermez) üstüne gelme biter.
+      const r = hovRow.getBoundingClientRect();
+      if (ptrY < r.top || ptrY > r.bottom) hovRow.dispatchEvent(new PointerEvent('pointerleave'));
+      else if (field.hov && field.hbox) { field.hbox = rowBox(hovRow); field.repose(); }
+    }
     if (fab) fab.classList.toggle('away', isHome() && y < innerHeight * 0.6);
     pickScene();
     field.vel = Math.min(1.5, field.vel + Math.abs(y - lastY) / 500); lastY = y; if (field.dirty) field.dirty();
@@ -765,7 +770,8 @@
   /* ---------- Bir sayfanın davranışlarını bağla (ilk açılışta ve her geçişte) ---------- */
   // Proje satırına gelince alan o projenin ikilik numarasına dönüşür. Şekil, satırın karşı yarısında
   // (satır ekranın üstündeyse altta, alttaysa üstte) sağa yaslı bir kutuya oturur: satırın yazısına binmez.
-  let hovRow = null;
+  let hovRow = null, ptrY = -1;
+  addEventListener('pointermove', (e) => { ptrY = e.clientY; }, { passive: true });
   function rowBox(row) {
     const r = row.getBoundingClientRect(), H = innerHeight, W = innerWidth, gut = parseFloat(getComputedStyle($('.pad', app) || document.body).paddingLeft) || 24;
     // Şekil satırın bölümünden dışarı taşmaz (ör. ana sayfada alttaki "Yazılar" bölümünün üstüne binmez).
