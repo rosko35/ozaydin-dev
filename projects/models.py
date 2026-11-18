@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.urls import reverse
@@ -77,6 +79,22 @@ class Project(models.Model):
     def idx(self):
         """İkilik numara, en az 3 hane: 1 → '001'."""
         return format(self.number, "03b")
+
+    @cached_property
+    def card_image(self):
+        """Proje dizininde satırın görseli: kapak, yoksa video kapağı, yoksa ilk galeri görseli.
+        Hiçbiri yoksa None (o satırda kart çıkmaz)."""
+        for f in (self.cover, self.video_poster):
+            if f:
+                try:
+                    return {"url": f.url, "w": f.width, "h": f.height}
+                except (OSError, ValueError):
+                    continue
+        im = self.images.first()
+        if im and im.image:
+            src = im.thumb or im.image
+            return {"url": src.url, "w": im.width or 800, "h": im.height or 600}
+        return None
 
     def get_absolute_url(self, lang="tr"):
         return reverse(f"{lang}:project", kwargs={"slug": self.slug})

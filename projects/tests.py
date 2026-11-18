@@ -19,3 +19,18 @@ class ProjectPageTests(TestCase):
         r = self.client.get("/projeler/safe-city-2072/", HTTP_HOST="localhost")
         self.assertContains(r, "<video")
         self.assertContains(r, 'type="video/mp4"')
+
+    def test_index_row_image_only_with_cover(self):
+        # Proje dizininde imleci izleyen kart: kapağı olan projede görsel var, olmayanda yok.
+        from io import BytesIO
+        from PIL import Image
+        r = self.client.get("/", HTTP_HOST="localhost")
+        self.assertNotContains(r, "data-peek=")
+        buf = BytesIO()
+        Image.new("RGB", (64, 48), "gray").save(buf, "PNG")
+        p = Project.objects.get(slug="safe-city-2072")
+        p.cover.save("k.png", ContentFile(buf.getvalue()), save=True)
+        for url in ("/", "/projeler/", "/en/projects/"):
+            r = self.client.get(url, HTTP_HOST="localhost")
+            self.assertContains(r, "data-peek=", count=1)
+            self.assertContains(r, 'class="shot"')
