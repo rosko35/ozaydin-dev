@@ -63,7 +63,7 @@
 </footer>
 
 {% if chat_enabled %}
-<button class="chat-fab" id="chat-fab" type="button" aria-expanded="false" aria-controls="chat" aria-label="{% ui 'chat.open' %}"><span class="mono" aria-hidden="true">01</span><span>{% ui "chat.button" %}</span></button>
+<button class="chat-fab" id="chat-fab" type="button" aria-expanded="false" aria-controls="chat" aria-label="{% ui 'chat.open' %}"><span>{% ui "chat.button" %}</span></button>
 <section class="chat" id="chat" hidden aria-labelledby="chat-title" data-lang="{{ lang }}" data-thinking="{% ui 'chat.thinking' %}" data-error="{% ui 'chat.error' %}">
   <header class="chat-head">
     <div><h2 id="chat-title">{% ui "chat.title" %}</h2><p class="chat-note">{% ui "chat.note" %}</p></div>

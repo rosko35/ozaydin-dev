@@ -3,5 +3,6 @@
   <span class="t">{{ p.title }}</span>
   <span class="d">{{ p|t:"summary" }}{% if p.stack %}<small>{{ p.stack }}</small>{% endif %}</span>
   <span class="y">{{ p.year|default:"" }}</span>
-  {% if im %}<span class="shot"><img src="{{ im.url }}" alt="" width="{{ im.w }}" height="{{ im.h }}" loading="lazy" decoding="async"></span>{% endif %}
+  {# Projeler sayfasında ilk satırın görseli dokunmatik ekranda sayfanın en büyük öğesi: geç yüklenmez. #}
+  {% if im %}<span class="shot"><img src="{{ im.url }}" alt="" width="{{ im.w }}" height="{{ im.h }}" {% if not eager %}loading="lazy" {% endif %}decoding="async"></span>{% endif %}
 </a>{% endwith %}

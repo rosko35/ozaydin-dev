@@ -14,7 +14,7 @@
     {% endif %}
     <div class="list rows" id="all-rows">
       {% for p in projects %}
-      <div class="rw" data-cats="{% for c in p.categories.all %}{{ c.slug }} {% endfor %}"><div>{% include "projects/_row.html" %}</div></div>
+      <div class="rw" data-cats="{% for c in p.categories.all %}{{ c.slug }} {% endfor %}"><div>{% include "projects/_row.html" with eager=forloop.first %}</div></div>
       {% empty %}<p class="empty">{% ui "projects.none" %}</p>{% endfor %}
     </div>
     <p class="empty" id="p-empty" hidden>{% ui "projects.empty" %}</p>

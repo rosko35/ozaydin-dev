@@ -530,7 +530,8 @@ h1.post-title { font-size: clamp(2.5rem, 5.4vw, 5.75rem); line-height: 0.95; max
 
 /* ---------- Sohbet asistanı ---------- */
 .chat-fab { position: fixed; z-index: 35; right: var(--gut); bottom: 24px; display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 18px 0 14px; border: 1px solid var(--rule-2); border-radius: 2px; background: oklch(0.185 0.014 255 / 0.92); color: var(--fg); font: 560 14px/1 var(--sans); cursor: pointer; transition: transform 0.4s var(--spring), background-color 0.2s ease, border-color 0.2s ease; }
-.chat-fab .mono { font: 400 11px/1 var(--mono); color: var(--g2); letter-spacing: 0.04em; }
+/* "01" süs: metin değil (erişilebilir ad görünen "Sor"u içersin) */
+.chat-fab::before { content: "01" / ""; font: 400 11px/1 var(--mono); color: var(--g2); letter-spacing: 0.04em; }
 .chat-fab:hover { border-color: var(--fg); }
 .chat-fab.away { opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity 0.3s ease, visibility 0s linear 0.3s, transform 0.3s ease; }
 .chat-fab[aria-expanded="true"] { transform: scale(0.9); opacity: 0; pointer-events: none; }
@@ -558,7 +559,7 @@ h1.post-title { font-size: clamp(2.5rem, 5.4vw, 5.75rem); line-height: 0.95; max
 .chat-form .btn { width: 44px; height: 44px; padding: 0; flex: none; font-size: 18px; }
 @media (max-width: 759px) {
   .chat-fab { right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 48px; height: 48px; padding: 0; justify-content: center; }
-  .chat-fab .mono { display: none; }
+  .chat-fab::before { display: none; }
   .chat { left: 12px; right: 12px; width: auto; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); height: min(72svh, 560px); }
 }
 @media (prefers-reduced-motion: reduce) { .chat { animation: none; } }

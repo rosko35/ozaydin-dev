@@ -56,8 +56,11 @@ class ProjectPageTests(TestCase):
         self.assertEqual((p.card_w, p.card_h), (640, 480))
         self.assertEqual(p.updated, updated)
         self.assertContains(r, f'data-peek="{p.card_thumb.url}"')
-        self.assertContains(r, f'<img src="{p.card_thumb.url}" alt="" width="640" height="480" loading="lazy"')
+        # Projeler sayfasında ilk satır hemen yüklenir; ana sayfada (aşağıda kalır) geç yüklenir.
+        self.assertContains(r, f'<img src="{p.card_thumb.url}" alt="" width="640" height="480" decoding="async"')
         self.assertNotContains(r, p.cover.url)
+        r = self.client.get("/", HTTP_HOST="localhost")
+        self.assertContains(r, f'<img src="{p.card_thumb.url}" alt="" width="640" height="480" loading="lazy"')
 
         first = p.card_thumb.name
         p.cover.save("yeni.png", png(800, 800, "red"), save=True)
