@@ -254,3 +254,37 @@ class ImageTests(TestCase):
         self.assertTrue(im.image.name.endswith(".webp"))
         self.assertEqual((im.width, im.height), (1600, 800))
         self.assertEqual(im.markdown(), f"![ekran görüntüsü]({im.image.url})")
+
+
+PROJE_YAZILARI = [
+    "mini-siem-log-izleme", "ssh-honeypot-notlari", "async-vuln-scanner-notlari", "net-traffic-analyzer-notlari",
+    "iot-sensor-panel-notlari", "server-hardening-notlari", "homelab-security-panel-notlari",
+]
+PROJE_SLUGLARI = [
+    "mini-siem", "ssh-honeypot", "async-vuln-scanner", "net-traffic-analyzer",
+    "iot-sensor-panel", "server-hardening", "homelab-security-panel",
+]
+
+
+class ProjectPostsSeedTests(TestCase):
+    """0003_proje_yazilari: yedi proje yazısı yayında, projeye bağlı, iki dilli."""
+
+    def test_seeded_posts(self):
+        posts = Post.objects.published().filter(slug__in=PROJE_YAZILARI)
+        self.assertEqual(posts.count(), 7)
+        by_slug = {p.slug: p for p in posts}
+        for slug, project_slug in zip(PROJE_YAZILARI, PROJE_SLUGLARI):
+            p = by_slug[slug]
+            self.assertEqual(p.related_project.slug, project_slug)
+            self.assertTrue(p.body_tr.strip() and p.body_en.strip())
+            self.assertTrue(p.body_html_tr and p.body_html_en)
+            self.assertTrue(1 <= p.tags.count() <= 3)
+        # günde bir yazı, 14-20 Kasım 2026
+        days = sorted(p.published_at.day for p in posts)
+        self.assertEqual(days, list(range(14, 21)))
+
+    def test_pages_tr_en(self):
+        c = Client(HTTP_HOST="localhost")
+        for slug in PROJE_YAZILARI:
+            self.assertEqual(c.get(f"/blog/{slug}/").status_code, 200, slug)
+            self.assertEqual(c.get(f"/en/blog/{slug}/").status_code, 200, slug)

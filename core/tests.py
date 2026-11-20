@@ -66,6 +66,18 @@ class SeoTests(TestCase):
         self.assertEqual(len(crumbs["itemListElement"]), 3)
         self.assertIn('<meta property="og:type" content="website">', html)
 
+    def test_home_intro_and_caps(self):
+        for url, who, first in (("/", "Python ile güvenlik, Django ile web.", "Güvenlik"),
+                                ("/en/", "Security with Python, web with Django.", "Security")):
+            with self.subTest(url=url):
+                html = self.c.get(url).content.decode()
+                self.assertIn(who, html)
+                caps = re.findall(r'<div class="cap rv">.*?<h3>(.*?)</h3>', html, re.S)
+                self.assertEqual(len(caps), 5)
+                self.assertEqual(caps[0], first)
+        person = next(n for n in jsonld_blocks(self.c.get("/").content.decode())[0]["@graph"] if n["@type"] == "Person")
+        self.assertIn("Network security", person["knowsAbout"])
+
     def test_jsonld_escapes_script_end(self):
         out = seo.jsonld({"x": "</script><b>&"})
         self.assertNotIn("<", out)

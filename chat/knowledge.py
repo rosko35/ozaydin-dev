@@ -9,10 +9,10 @@ PROFILE = """
 - Önceki eğitim: Yaşar Üniversitesi, Bilgisayar Programcılığı önlisans, Ocak 2023 – Temmuz 2025.
 - Önemli dersler: Veri Yapıları, Algoritma Analizi, Veritabanı Yönetim Sistemleri, Veritabanı Programlama, Bilgisayar Ağları, Kriptografi ve Ağ Güvenliği, IoT ve Siber Güvenlik, İstemci Taraflı Web Programlama, Mobil Uygulama Geliştirme, Bilgisayar Organizasyonu ve Mimarisi, Sayısal Mantık Tasarımı, Yönetim Bilişim Sistemleri, 3B Modelleme ve Animasyon.
 - Deneyim: Kodmosfer Yazılım, stajyer geliştirici, Ağustos–Eylül 2024 (20 günlük staj): SQL veritabanlarıyla yoğun çalıştı, C# ile backend bilgisini derinleştirdi, HTML ve CSS'ini geliştirdi. BEBESCO, satış temsilcisi, Temmuz 2021 – Haziran 2024: profesyonel müşterilerle çalıştı, sunum ve satış süreci yönetmeyi öğrendi.
-- Programlama dilleri: Python, C#, C++, SQL, JavaScript, Kotlin. Web ve backend: Django, HTML, CSS, SQL veritabanları, C# ile backend. Oyun ve mobil: Unity, Android Studio. Araçlar: Git, Visual Studio, Visual Studio Code. Video: Adobe Premiere Pro, After Effects.
+- Programlama dilleri: Python, C#, C++, SQL, JavaScript, Kotlin. Web ve backend: Django, HTML, CSS, SQL veritabanları, C# ile backend. Güvenlik ve altyapı: Linux, Ansible, Docker, Nginx. Veri ve izleme: SQLite, InfluxDB, Grafana, MQTT. Oyun ve mobil: Unity, Android Studio. Araçlar: Git, Visual Studio, Visual Studio Code. Video: Adobe Premiere Pro, After Effects.
 - Diller: Türkçe (ana dil), İngilizce (tam profesyonel), İspanyolca (sınırlı çalışma düzeyi), Almanca (başlangıç).
 - Sertifikalar: KKTC Siber Güvenlik Zirvesi ve KKTC Yapay Zekâ Zirvesi '26 — katılım sertifikaları.
-- Şu an: uzun dönem staja açık; bu siteye yeni projeler ekliyor.
+- Şu an: uzun dönem staja açık; sunucusu ve ev ağı için güvenlik araçları yazıyor (log izleme, honeypot, sunucu sıkılaştırma).
 - İletişim: e-posta emreozaydn60@gmail.com, sitedeki iletişim formu (ozaydin.dev/iletisim/), GitHub github.com/rosko35, LinkedIn linkedin.com/in/emre-özaydın-b65409270.
 - Bu site (ozaydin.dev): Django ile yazıldı, kendi Ubuntu sunucusunda Nginx, Gunicorn, PostgreSQL ve HTTPS ile yayında; 3D 0/1 alanı Three.js ile.
 """

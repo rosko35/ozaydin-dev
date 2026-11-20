@@ -34,7 +34,7 @@ PERSON = {
         "https://www.linkedin.com/in/emre-%C3%B6zayd%C4%B1n-b65409270/",
     ],
     "knowsLanguage": ["tr", "en", "es", "de"],
-    "knowsAbout": ["Python", "Django", "C#", "Unity", "SQL", "JavaScript"],
+    "knowsAbout": ["Python", "Django", "Linux", "Network security", "Ansible", "Docker", "C#", "SQL", "JavaScript", "Unity"],
 }
 
 

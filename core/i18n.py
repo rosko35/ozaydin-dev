@@ -22,8 +22,8 @@ STRINGS = {
     # Genel
     "site.title": ("Emre Özaydın · ozaydin.dev", "Emre Özaydın · ozaydin.dev"),
     "site.description": (
-        "Emre Özaydın — bilişim öğrencisi. Django ile web, Unity ile oyun geliştiriyor.",
-        "Emre Özaydın — information systems student building web apps with Django and games with Unity.",
+        "Emre Özaydın — bilişim öğrencisi. Python ile güvenlik araçları, Django ile web geliştiriyor.",
+        "Emre Özaydın — information systems student building security tools with Python and web apps with Django.",
     ),
     "clock.city": ("İstanbul", "Istanbul"),
     "clock.label": ("İstanbul saati", "Istanbul time"),
@@ -31,15 +31,15 @@ STRINGS = {
     # Ana sayfa
     "home.eyebrow": ("Bilişim öğrencisi · Doğu Akdeniz Üniversitesi", "IT student · Eastern Mediterranean University"),
     "home.lead": (
-        "Sıfırlardan ve birlerden, <b>çalışan sistemlere</b>. Django ile web, Unity ile oyun geliştiriyorum.",
-        "From zeros and ones to <b>working systems</b>. I build web apps with Django and games with Unity.",
+        "Sıfırlardan ve birlerden, <b>çalışan sistemlere</b>. Python ile güvenlik araçları, Django ile web geliştiriyorum.",
+        "From zeros and ones to <b>working systems</b>. I build security tools with Python and web apps with Django.",
     ),
     "home.cta_projects": ("Projeleri gör", "See projects"),
     "home.slogan_1": ("Sıfırlardan ve birlerden,", "From zeros and ones"),
     "home.slogan_2": ("çalışan sistemlere.", "to working systems."),
     "home.who_1": ("Bilişim öğrencisi", "IT student"),
     "home.who_2": ("Doğu Akdeniz Üniversitesi.", "Eastern Mediterranean University."),
-    "home.who_3": ("Django ile web, Unity ile oyun.", "Web with Django, games with Unity."),
+    "home.who_3": ("Python ile güvenlik, Django ile web.", "Security with Python, web with Django."),
     "home.cta_contact": ("İletişime geç", "Get in touch"),
     "home.principle": ("İlke", "Principle"),
     "home.manifesto": (
@@ -51,6 +51,11 @@ STRINGS = {
     "home.writing": ("Yazılar", "Writing"),
     "home.all_posts": ("Tüm yazılar", "All posts"),
     "home.what": ("Ne yapıyorum", "What I do"),
+    "cap.security": ("Güvenlik", "Security"),
+    "cap.security_p": (
+        "Sunucuları sıkılaştırır, log'ları izler, ağda ne olup bittiğini gösteren araçlar yazarım.",
+        "I harden servers, watch logs and write tools that show what is happening on a network.",
+    ),
     "cap.backend": ("Backend", "Backend"),
     "cap.backend_p": (
         "Veri modelinden login sistemine kadar bir web uygulamasının backend'ini kurarım.",
@@ -129,8 +134,8 @@ STRINGS = {
     "404.home": ("Ana sayfaya dön", "Back to home"),
     # Blog
     "blog.description": (
-        "Emre Özaydın'ın yazıları: Django, sunucular ve öğrenirken not aldıklarım.",
-        "Posts by Emre Özaydın: Django, servers and notes from learning along the way.",
+        "Emre Özaydın'ın yazıları: güvenlik, sunucular, Django ve öğrenirken not aldıklarım.",
+        "Posts by Emre Özaydın: security, servers, Django and notes from learning along the way.",
     ),
     "blog.tag_description": ("“{tag}” etiketli yazılar.", "Posts tagged “{tag}”."),
     "blog.count": ("{n} yazı", "{n} posts"),

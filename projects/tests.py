@@ -69,3 +69,33 @@ class ProjectPageTests(TestCase):
         self.assertNotEqual(p.card_thumb.name, first)
         self.assertEqual((p.card_w, p.card_h), (640, 640))
         self.assertFalse(p.card_thumb.storage.exists(first))
+
+
+NEW_PROJECTS = {
+    3: "mini-siem", 4: "ssh-honeypot", 5: "async-vuln-scanner", 6: "net-traffic-analyzer",
+    7: "server-hardening", 8: "iot-sensor-panel", 9: "homelab-security-panel",
+}
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class NewProjectsTests(TestCase):
+    def test_seven_new_projects_with_fixed_numbers(self):
+        qs = Project.objects.filter(slug__in=NEW_PROJECTS.values())
+        self.assertEqual(qs.count(), 7)
+        self.assertEqual(dict(qs.values_list("number", "slug")), NEW_PROJECTS)
+
+    def test_both_summaries_and_categories_filled(self):
+        for p in Project.objects.filter(slug__in=NEW_PROJECTS.values()):
+            self.assertTrue(p.summary_tr.strip(), p.slug)
+            self.assertTrue(p.summary_en.strip(), p.slug)
+            self.assertIn(p.categories.count(), (1, 2), p.slug)
+            self.assertEqual(p.repo_url, f"https://github.com/rosko35/{p.slug}")
+
+    def test_featured_only_selected(self):
+        featured = set(Project.objects.filter(slug__in=NEW_PROJECTS.values(), featured=True).values_list("slug", flat=True))
+        self.assertEqual(featured, {"mini-siem", "ssh-honeypot", "server-hardening", "homelab-security-panel"})
+
+    def test_detail_pages_both_languages(self):
+        for slug in NEW_PROJECTS.values():
+            for url in (f"/projeler/{slug}/", f"/en/projects/{slug}/"):
+                self.assertEqual(self.client.get(url, HTTP_HOST="localhost").status_code, 200, url)
